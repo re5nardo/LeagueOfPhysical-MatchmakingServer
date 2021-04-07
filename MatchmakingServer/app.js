@@ -10,6 +10,7 @@ var redis = require('redis');
 var Redlock = require('redlock');
 var util = require("util");
 var compression = require('compression');
+var mongoose = require('mongoose');
 require('console-stamp')(console, 'HH:MM:ss.l');
 
 var routes = require('./routes/index');
@@ -118,3 +119,13 @@ global.redis.existsAsync = util.promisify(redisReadWrite.exists).bind(redisReadW
 global.redis.delAsync = util.promisify(redisReadWrite.del).bind(redisReadWrite);
 global.redis.redisMulti = redisReadWrite.multi();   //  공유되는건가..? 그럼 async 작업에서 꼬일수도 있을텐데..
 global.redis.execMultiAsync = util.promisify(global.redis.redisMulti.exec).bind(global.redis.redisMulti);
+
+// mongoose
+mongoose.connect('mongodb://localhost:27017/test', { useNewUrlParser: true, useUnifiedTopology: true });
+
+const db = mongoose.connection;
+db.on('error', console.error.bind(console, 'connection error:'));
+db.once('open', function () {
+    // we're connected!
+    console.log("Connected to mongod server");
+});
