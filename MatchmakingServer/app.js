@@ -11,6 +11,8 @@ var Redlock = require('redlock');
 var util = require("util");
 var compression = require('compression');
 var mongoose = require('mongoose');
+var fs = require('fs');
+var convert = require('xml-js');
 require('console-stamp')(console, 'HH:MM:ss.l');
 
 var routes = require('./routes/index');
@@ -128,4 +130,32 @@ db.on('error', console.error.bind(console, 'connection error:'));
 db.once('open', function () {
     // we're connected!
     console.log("Connected to mongod server");
+});
+
+//  mastaData
+global.masterData = {};
+global.masterData.subGameData = new Map();
+
+fs.readFile('./MasterData/SubGameData/Dodgeball.xml', function (err, data) {
+    var options = { ignoreComment: true, compact: true };
+    var js = convert.xml2js(data, options);
+    global.masterData.subGameData.set('Dodgeball', js.SubGameData);
+});
+
+fs.readFile('./MasterData/SubGameData/ObserverAvoid.xml', function (err, data) {
+    var options = { ignoreComment: true, compact: true };
+    var js = convert.xml2js(data, options);
+    global.masterData.subGameData.set('ObserverAvoid', js.SubGameData);
+});
+
+fs.readFile('./MasterData/SubGameData/RememberGame.xml', function (err, data) {
+    var options = { ignoreComment: true, compact: true };
+    var js = convert.xml2js(data, options);
+    global.masterData.subGameData.set('RememberGame', js.SubGameData);
+});
+
+fs.readFile('./MasterData/SubGameData/TargetShooting.xml', function (err, data) {
+    var options = { ignoreComment: true, compact: true };
+    var js = convert.xml2js(data, options);
+    global.masterData.subGameData.set('TargetShooting', js.SubGameData);
 });
