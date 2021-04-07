@@ -5,17 +5,17 @@ const util = require("util");
 const request = require('request-promise-native');
 const uuid = require('uuid');
 
+const MatchmakingTicket = require('../models/matchmaking_ticket');
+const UserMatchState = require('../models/user_match_state');
+
 const CreateMatchmakingTicketResponse = require('../models/response/create_matchmaking_ticket_response');
 const CancelMatchmakingTicketResponse = require('../models/response/cancel_matchmaking_ticket_response');
-const MatchmakingTicket = require('../models/matchmaking_ticket');
+
 const WaitingRoom = require('../models/waiting_room');
 const ResponseCode = require('../response_code');
 
-const userMatchStateKeyFormat = `user.matchState:%s`;
-const matchmakingTicketKeyFormat = `matchmaking.ticket:%s`;
 const gameRoomKeyFormat = `gameRoom:%s`;
-
-const userMatchStateLockKeyFormat = `lock.user.matchState:%s`;
+const waitingRoomKeyFormat = `waitingRoom:%s`;
 
 const waitingRoomMap = new Map();
 
@@ -35,6 +35,13 @@ async function onCreateMatchmakingTicket(req, res) {
     const matchType = req.body.matchType;
     const rating = req.body.rating;
 
+    //  get userMatchState
+    const userMatchState = await getUserMatchState(userId);
+    if (!userMatchState) {
+        return res.json(new CreateMatchmakingTicketResponse(ResponseCode.INVALID_TO_MATCHMAKING, -1));
+    }
+
+    //  validation test
     if (await validateToMatchmaking(userId) !== true) {
         return res.json(new CreateMatchmakingTicketResponse(ResponseCode.INVALID_TO_MATCHMAKING, -1));
     }
@@ -43,40 +50,23 @@ async function onCreateMatchmakingTicket(req, res) {
     let matchmakingTicket;
     try {
         matchmakingTicket = issueMatchmakingTicket(userId, gameType, matchType, rating);
-        global.redis.redisMulti.setex(util.format(matchmakingTicketKeyFormat, matchmakingTicket.ticketId), 60 * 10, JSON.stringify(matchmakingTicket));
-        await global.redis.execMultiAsync();
+        await matchmakingTicket.save();
     } catch (error) {
         console.error(error);
         return res.json(new CreateMatchmakingTicketResponse(ResponseCode.INVALID_TO_MATCHMAKING, -1));
     }
 
     //  update userMatchState
-    let userMatchStateLock;
-    const ttl = 3000;
     try {
-        userMatchStateLock = await global.redis.redlock.lock(util.format(userMatchStateLockKeyFormat, userId), ttl);
-
-        let userMatchState;
-        const userMatchStateJson = await global.redis.getAsync(util.format(userMatchStateKeyFormat, userId));
-        if (userMatchStateJson === null) {
-            userMatchState = {};
-        } else {
-            userMatchState = JSON.parse(userMatchStateJson);
-        }
-        userMatchState.state = '';
-        userMatchState.stateValue = '';
         userMatchState.matchmakingTicketId = matchmakingTicket.ticketId;
-
-        await global.redis.setAsync(util.format(userMatchStateKeyFormat, userId), JSON.stringify(userMatchState));
+        await userMatchState.save();
     } catch (error) {
         console.error(error);
         return res.json(new CreateMatchmakingTicketResponse(ResponseCode.INVALID_TO_MATCHMAKING, -1));
-    } finally {
-        await userMatchStateLock.unlock();
     }
 
     //  join or create waitingRoom
-    if (await joinOrCreateWaitingRoom(userId, matchmakingTicket) === true) {
+    if (await joinOrCreateWaitingRoom(userMatchState, matchmakingTicket) === true) {
         res.json(new CreateMatchmakingTicketResponse(ResponseCode.SUCCESS, matchmakingTicket.ticketId));
     }
     else {
@@ -86,36 +76,29 @@ async function onCreateMatchmakingTicket(req, res) {
 
 async function onCancelMatchmakingTicket(req, res) {
     const userId = req.params.userId;
-    let userMatchStateLock;
-    const ttl = 3000;
     try {
-        userMatchStateLock = await global.redis.redlock.lock(util.format(userMatchStateLockKeyFormat, userId), ttl);
-
-        let userMatchState;
-        const userMatchStateJson = await global.redis.getAsync(util.format(userMatchStateKeyFormat, userId));
-        if (userMatchStateJson === null) {
-            return res.json(new CancelMatchmakingTicketResponse(ResponseCode.SUCCESS));
-        } else {
-            userMatchState = JSON.parse(userMatchStateJson);
+        const userMatchState = await getUserMatchState(userId);
+        if (!userMatchState) {
+            return res.json(new CancelMatchmakingTicketResponse(ResponseCode.UNKNOWN_ERROR));
         }
-       
+
         switch (userMatchState.state) {
             case 'inWaitingRoom':
                 leaveWaitingRoom(userId, userMatchState.stateValue);
-                userMatchState.state = 'none';
+                userMatchState.state = '';
                 userMatchState.stateValue = '';
                 userMatchState.matchmakingTicketId = '';
-                await global.redis.setAsync(util.format(userMatchStateKeyFormat, userId), JSON.stringify(userMatchState));
+                await userMatchState.save();
                 return res.json(new CancelMatchmakingTicketResponse(ResponseCode.SUCCESS));
             case 'inGameRoom':
                 const gameRoomKey = util.format(gameRoomKeyFormat, userMatchState.stateValue);
                 if (await global.redis.existsAsync(gameRoomKey) === 1) {
                     return res.json(new CancelMatchmakingTicketResponse(ResponseCode.UNKNOWN_ERROR));
                 } else {
-                    userMatchState.state = 'none';
+                    userMatchState.state = '';
                     userMatchState.stateValue = '';
                     userMatchState.matchmakingTicketId = '';
-                    await global.redis.setAsync(util.format(userMatchStateKeyFormat, userId), JSON.stringify(userMatchState));
+                    await userMatchState.save();
                     return res.json(new CancelMatchmakingTicketResponse(ResponseCode.SUCCESS));
                 }
             default:
@@ -124,54 +107,65 @@ async function onCancelMatchmakingTicket(req, res) {
     } catch (error) {
         console.error(error);
         return res.json(new CancelMatchmakingTicketResponse(ResponseCode.UNKNOWN_ERROR));
-    } finally {
-        await userMatchStateLock.unlock();
     }
 
     res.json(new CancelMatchmakingTicketResponse(ResponseCode.UNKNOWN_ERROR));
 }
 
-async function validateToMatchmaking(userId) {
-    let userMatchStateLock;
-    const ttl = 3000;
+async function getUserMatchState(userId) {
     try {
-        userMatchStateLock = await global.redis.redlock.lock(util.format(userMatchStateLockKeyFormat, userId), ttl);
+        const filter = {
+            userId: userId
+        };
 
-        let userMatchState;
-        const userMatchStateJson = await global.redis.getAsync(util.format(userMatchStateKeyFormat, userId));
-        if (userMatchStateJson === null) {
-            return true;
-        } else {
-            userMatchState = JSON.parse(userMatchStateJson);
-        }
+        const update = {
+            userId: userId,
+        };
+
+        const userMatchState = await UserMatchState.findOneAndUpdate(filter, update, {
+            new: true,
+            upsert: true,
+        });
 
         switch (userMatchState.state) {
             case 'inWaitingRoom':
-                if (existsWaitingRoom(userMatchState.stateValue) === true) {
-                    return false;
-                } else {
-                    userMatchState.state = 'none';
+                const waitingRoomKey = util.format(waitingRoomKeyFormat, userMatchState.stateValue);
+                if (await global.redis.existsAsync(waitingRoomKey) !== 1) {
+                    userMatchState.state = '';
                     userMatchState.stateValue = '';
-                    await global.redis.setAsync(util.format(userMatchStateKeyFormat, userId), JSON.stringify(userMatchState));
-                    return true;
+                    userMatchState.matchmakingTicketId = '';
+                    await userMatchState.save();
                 }
+                break;
+
             case 'inGameRoom':
                 const gameRoomKey = util.format(gameRoomKeyFormat, userMatchState.stateValue);
-                if (await global.redis.existsAsync(gameRoomKey) === 1) {
-                    return false;
-                } else {
-                    userMatchState.state = 'none';
+                if (await global.redis.existsAsync(gameRoomKey) !== 1) {
+                    userMatchState.state = '';
                     userMatchState.stateValue = '';
-                    await global.redis.setAsync(util.format(userMatchStateKeyFormat, userId), JSON.stringify(userMatchState));
-                    return true;
+                    userMatchState.matchmakingTicketId = '';
+                    await userMatchState.save();
                 }
+                break;
+        }
+        return userMatchState;
+    } catch (error) {
+        console.error(error);
+    }
+}
+
+async function validateToMatchmaking(userId) {
+    try {
+        let userMatchState = await getUserMatchState(userId);
+        switch (userMatchState.state) {
+            case 'inWaitingRoom':
+            case 'inGameRoom':
+                return false;
             default:
                 return true;
         }
     } catch (error) {
         console.error(error);
-    } finally {
-        await userMatchStateLock.unlock();
     }
 
     return false;
@@ -236,12 +230,11 @@ function issueMatchmakingTicket(userId, gameType, matchType, rating) {
     matchmakingTicket.gameType = gameType;
     matchmakingTicket.matchType = matchType;
     matchmakingTicket.rating = rating;
-    matchmakingTicket.created = Date.now();
 
     return matchmakingTicket;
 }
 
-async function joinOrCreateWaitingRoom(userId, matchmakingTicket) {
+async function joinOrCreateWaitingRoom(userMatchState, matchmakingTicket) {
     const gameType = matchmakingTicket.gameType;
     const matchType = matchmakingTicket.matchType;
 
@@ -282,32 +275,16 @@ async function joinOrCreateWaitingRoom(userId, matchmakingTicket) {
         }
     }
 
-    let userMatchStateLock;
-    const ttl = 3000;
     try {
-        userMatchStateLock = await global.redis.redlock.lock(util.format(userMatchStateLockKeyFormat, userId), ttl);
-
-        let userMatchState;
-        const userMatchStateJson = await global.redis.getAsync(util.format(userMatchStateKeyFormat, userId));
-        if (userMatchStateJson === null) {
-            userMatchState = {};
-        } else {
-            userMatchState = JSON.parse(userMatchStateJson);
-        }
-
         userMatchState.state = 'inWaitingRoom';
         userMatchState.stateValue = waitingRoom.waitingRoomId;
         userMatchState.matchmakingTicketId = matchmakingTicket.ticketId;
-
-        await global.redis.setAsync(util.format(userMatchStateKeyFormat, userId), JSON.stringify(userMatchState));
-        waitingRoom.waitingPlayerList.push(userId);
-     
+        await userMatchState.save();
+        waitingRoom.waitingPlayerList.push(userMatchState.userId);
         return true;
     } catch (error) {
         console.error(error);
         return false;
-    } finally {
-        await userMatchStateLock.unlock();
     }
    
     return false;
@@ -358,23 +335,17 @@ async function processWaitingRoom(waitingRoom) {
         return;
     }
 
+    //MULTI TRANSACTION
     for (const waitingPlayer of waitingRoom.waitingPlayerList) {
-        let userMatchStateLock;
-        const ttl = 3000;
         try {
-            userMatchStateLock = await global.redis.redlock.lock(util.format(userMatchStateLockKeyFormat, waitingPlayer), ttl);
-
-            const userMatchState = {
-                state: 'inGameRoom',
-                stateValue: response.gameRoomId,
-                matchmakingTicketId: ''
-            }
-            await global.redis.setAsync(util.format(userMatchStateKeyFormat, waitingPlayer), JSON.stringify(userMatchState));
+            let userMatchState = await getUserMatchState(waitingPlayer);
+            userMatchState.state = 'inGameRoom';
+            userMatchState.stateValue = response.gameRoomId;
+            userMatchState.matchmakingTicketId = '';
+            await userMatchState.save();
         } catch (error) {
             console.error(error);
             //  rollback (userMatchState, despawn game room)
-        } finally {
-            await userMatchStateLock.unlock();
         }
     }
 

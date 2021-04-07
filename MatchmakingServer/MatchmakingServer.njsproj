@@ -32,6 +32,9 @@
   </PropertyGroup>
   <ItemGroup>
     <Content Include="app.js" />
+    <Content Include="models\user_match_state.js">
+      <SubType>Code</SubType>
+    </Content>
     <Content Include="response_code.js">
       <SubType>Code</SubType>
     </Content>

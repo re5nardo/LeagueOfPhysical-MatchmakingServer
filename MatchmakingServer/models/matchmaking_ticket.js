@@ -1,12 +1,20 @@
 'use strict';
+var mongoose = require('mongoose');
+var Schema = mongoose.Schema;
 
-module.exports = class MatchmakingTicket {
-    constructor() {
-        this.ticketId = '';
-        this.creator = '';
-        this.gameType = '';
-        this.matchType = '';
-        this.rating = -1;
-        this.created = -1;
+var matchmakingTicketSchema = new Schema({
+    ticketId: String,
+    creator: String,
+    gameType: String,
+    matchType: String,
+    rating: Number,
+    createdAt: {
+        type: Date,
+        expires: 60 * 10
     }
-}
+},
+{
+    timestamps: true,
+});
+
+module.exports = mongoose.model('MatchmakingTicket', matchmakingTicketSchema);
