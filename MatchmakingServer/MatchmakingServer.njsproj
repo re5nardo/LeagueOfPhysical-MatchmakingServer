@@ -32,6 +32,18 @@
   </PropertyGroup>
   <ItemGroup>
     <Content Include="app.js" />
+    <Content Include="MasterData\SubGameData\ObserverAvoid.xml">
+      <SubType>Code</SubType>
+    </Content>
+    <Content Include="MasterData\SubGameData\RememberGame.xml">
+      <SubType>Code</SubType>
+    </Content>
+    <Content Include="MasterData\SubGameData\TargetShooting.xml">
+      <SubType>Code</SubType>
+    </Content>
+    <Content Include="MasterData\SubGameData\Dodgeball.xml">
+      <SubType>Code</SubType>
+    </Content>
     <Content Include="models\user_match_state.js">
       <SubType>Code</SubType>
     </Content>
@@ -66,8 +78,10 @@
     <Content Include="views\error.pug" />
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="MasterData\SubGameData\" />
     <Folder Include="models\" />
     <Folder Include="models\response\" />
+    <Folder Include="MasterData\" />
     <Folder Include="public\" />
     <Folder Include="public\images\" />
     <Folder Include="public\javascripts\" />

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<SubGameData>
+  <SubGameId>ObserverAvoid</SubGameId>
+  <MinPlayers>2</MinPlayers>
+  <MaxPlayers>8</MaxPlayers>
+  <AvailableMatchType>Friendly</AvailableMatchType>
+  <AvailableMatchType>Rank</AvailableMatchType>
+</SubGameData>
