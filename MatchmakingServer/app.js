@@ -15,6 +15,8 @@ var fs = require('fs');
 var convert = require('xml-js');
 require('console-stamp')(console, 'HH:MM:ss.l');
 
+const SubGameData = require('./models/MasterData/sub_game_data');
+
 var routes = require('./routes/index');
 var users = require('./routes/users');
 var match = require('./routes/match');
@@ -139,23 +141,71 @@ global.masterData.subGameData = new Map();
 fs.readFile('./MasterData/SubGameData/Dodgeball.xml', function (err, data) {
     var options = { ignoreComment: true, compact: true };
     var js = convert.xml2js(data, options);
-    global.masterData.subGameData.set('Dodgeball', js.SubGameData);
+
+    const availableMatchTypeList = [];
+    for (const availableMatchType of js.SubGameData.AvailableMatchType) {
+        availableMatchTypeList.push(availableMatchType._text);
+    }
+
+    let subGameData = new SubGameData();
+    subGameData.subGameId = js.SubGameData.SubGameId._text;
+    subGameData.minPlayerCount = Number(js.SubGameData.MinPlayerCount._text);
+    subGameData.maxPlayerCount = Number(js.SubGameData.MaxPlayerCount._text);
+    subGameData.availableMatchTypeList = availableMatchTypeList;
+
+    global.masterData.subGameData.set('Dodgeball', subGameData);
 });
 
 fs.readFile('./MasterData/SubGameData/ObserverAvoid.xml', function (err, data) {
     var options = { ignoreComment: true, compact: true };
     var js = convert.xml2js(data, options);
-    global.masterData.subGameData.set('ObserverAvoid', js.SubGameData);
+
+    const availableMatchTypeList = [];
+    for (const availableMatchType of js.SubGameData.AvailableMatchType) {
+        availableMatchTypeList.push(availableMatchType._text);
+    }
+
+    let subGameData = new SubGameData();
+    subGameData.subGameId = js.SubGameData.SubGameId._text;
+    subGameData.minPlayerCount = Number(js.SubGameData.MinPlayerCount._text);
+    subGameData.maxPlayerCount = Number(js.SubGameData.MaxPlayerCount._text);
+    subGameData.availableMatchTypeList = availableMatchTypeList;
+
+    global.masterData.subGameData.set('ObserverAvoid', subGameData);
 });
 
 fs.readFile('./MasterData/SubGameData/RememberGame.xml', function (err, data) {
     var options = { ignoreComment: true, compact: true };
     var js = convert.xml2js(data, options);
-    global.masterData.subGameData.set('RememberGame', js.SubGameData);
+
+    const availableMatchTypeList = [];
+    for (const availableMatchType of js.SubGameData.AvailableMatchType) {
+        availableMatchTypeList.push(availableMatchType._text);
+    }
+
+    let subGameData = new SubGameData();
+    subGameData.subGameId = js.SubGameData.SubGameId._text;
+    subGameData.minPlayerCount = Number(js.SubGameData.MinPlayerCount._text);
+    subGameData.maxPlayerCount = Number(js.SubGameData.MaxPlayerCount._text);
+    subGameData.availableMatchTypeList = availableMatchTypeList;
+
+    global.masterData.subGameData.set('RememberGame', subGameData);
 });
 
 fs.readFile('./MasterData/SubGameData/TargetShooting.xml', function (err, data) {
     var options = { ignoreComment: true, compact: true };
     var js = convert.xml2js(data, options);
-    global.masterData.subGameData.set('TargetShooting', js.SubGameData);
+
+    const availableMatchTypeList = [];
+    for (const availableMatchType of js.SubGameData.AvailableMatchType) {
+        availableMatchTypeList.push(availableMatchType._text);
+    }
+
+    let subGameData = new SubGameData();
+    subGameData.subGameId = js.SubGameData.SubGameId._text;
+    subGameData.minPlayerCount = Number(js.SubGameData.MinPlayerCount._text);
+    subGameData.maxPlayerCount = Number(js.SubGameData.MaxPlayerCount._text);
+    subGameData.availableMatchTypeList = availableMatchTypeList;
+
+    global.masterData.subGameData.set('TargetShooting', subGameData);
 });

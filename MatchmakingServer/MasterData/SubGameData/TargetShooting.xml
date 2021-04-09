@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <SubGameData>
   <SubGameId>TargetShooting</SubGameId>
-  <MinPlayers>2</MinPlayers>
-  <MaxPlayers>8</MaxPlayers>
+  <MinPlayerCount>2</MinPlayerCount>
+  <MaxPlayerCount>8</MaxPlayerCount>
   <AvailableMatchType>Friendly</AvailableMatchType>
   <AvailableMatchType>Rank</AvailableMatchType>
 </SubGameData>

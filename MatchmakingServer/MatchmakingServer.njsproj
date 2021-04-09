@@ -44,6 +44,9 @@
     <Content Include="MasterData\SubGameData\Dodgeball.xml">
       <SubType>Code</SubType>
     </Content>
+    <Content Include="models\MasterData\sub_game_data.js">
+      <SubType>Code</SubType>
+    </Content>
     <Content Include="models\user_match_state.js">
       <SubType>Code</SubType>
     </Content>
@@ -80,6 +83,7 @@
   <ItemGroup>
     <Folder Include="MasterData\SubGameData\" />
     <Folder Include="models\" />
+    <Folder Include="models\MasterData\" />
     <Folder Include="models\response\" />
     <Folder Include="MasterData\" />
     <Folder Include="public\" />
