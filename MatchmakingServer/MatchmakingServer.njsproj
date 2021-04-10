@@ -47,6 +47,9 @@
     <Content Include="models\MasterData\sub_game_data.js">
       <SubType>Code</SubType>
     </Content>
+    <Content Include="models\user_info.js">
+      <SubType>Code</SubType>
+    </Content>
     <Content Include="models\user_match_state.js">
       <SubType>Code</SubType>
     </Content>

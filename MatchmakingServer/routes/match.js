@@ -7,6 +7,7 @@ const uuid = require('uuid');
 
 const MatchmakingTicket = require('../models/matchmaking_ticket');
 const UserMatchState = require('../models/user_match_state');
+const UserInfo = require('../models/user_info');
 
 const CreateMatchmakingTicketResponse = require('../models/response/create_matchmaking_ticket_response');
 const CancelMatchmakingTicketResponse = require('../models/response/cancel_matchmaking_ticket_response');
@@ -31,9 +32,15 @@ setInterval(matchmakingUpdate, 500);
 
 async function onCreateMatchmakingTicket(req, res) {
     const userId = req.body.userId;
-    const gameType = req.body.gameType;
     const matchType = req.body.matchType;
-    const rating = req.body.rating;
+    const subGameId = req.body.subGameId;
+    const mapId = req.body.mapId;
+
+    const userInfo = await getUserInfo(userId);
+    if (!userInfo) {
+        return res.json(new CreateMatchmakingTicketResponse(ResponseCode.INVALID_TO_MATCHMAKING, -1));
+    }
+    const rating = matchType === 'rank' ? userInfo.rankRating : userInfo.friendlyRating;
 
     //  get userMatchState
     const userMatchState = await getUserMatchState(userId);
@@ -49,7 +56,7 @@ async function onCreateMatchmakingTicket(req, res) {
     //  issue & save matchmakingTicket
     let matchmakingTicket;
     try {
-        matchmakingTicket = issueMatchmakingTicket(userId, gameType, matchType, rating);
+        matchmakingTicket = issueMatchmakingTicket(userId, matchType, subGameId, mapId, rating);
         await matchmakingTicket.save();
     } catch (error) {
         console.error(error);
@@ -119,13 +126,16 @@ async function getUserMatchState(userId) {
         };
 
         const update = {
-            userId: userId,
+            userId: userId
         };
 
-        const userMatchState = await UserMatchState.findOneAndUpdate(filter, update, {
+        const options = {
             new: true,
             upsert: true,
-        });
+            setDefaultsOnInsert: true
+        };
+
+        const userMatchState = await UserMatchState.findOneAndUpdate(filter, update, options);
 
         switch (userMatchState.state) {
             case 'inWaitingRoom':
@@ -149,6 +159,28 @@ async function getUserMatchState(userId) {
                 break;
         }
         return userMatchState;
+    } catch (error) {
+        console.error(error);
+    }
+}
+
+async function getUserInfo(userId) {
+    try {
+        const filter = {
+            userId: userId
+        };
+
+        const update = {
+            userId: userId
+        };
+
+        const options = {
+            new: true,
+            upsert: true,
+            setDefaultsOnInsert: true
+        };
+
+        return await UserInfo.findOneAndUpdate(filter, update, options);
     } catch (error) {
         console.error(error);
     }
@@ -185,12 +217,10 @@ async function leaveWaitingRoom(userId, waitingRoomId) {
 }
 
 function existsWaitingRoom(waitingRoomId) {
-    for (let gameTypeMap of waitingRoomMap.values()) {
-        for (let waitingRoomList of gameTypeMap.values()) {
-            for (let waitingRoom of waitingRoomList) {
-                if (waitingRoom.waitingRoomId === waitingRoomId) {
-                    return true;
-                }
+    for (let waitingRoomList of waitingRoomMap.values()) {
+        for (let waitingRoom of waitingRoomList) {
+            if (waitingRoom.waitingRoomId === waitingRoomId) {
+                return true;
             }
         }
     }
@@ -199,71 +229,71 @@ function existsWaitingRoom(waitingRoomId) {
 }
 
 function getWaitingRoom(waitingRoomId) {
-    for (let gameTypeMap of waitingRoomMap.values()) {
-        for (let waitingRoomList of gameTypeMap.values()) {
-            for (let waitingRoom of waitingRoomList) {
-                if (waitingRoom.waitingRoomId === waitingRoomId) {
-                    return waitingRoom;
-                }
+    for (let waitingRoomList of waitingRoomMap.values()) {
+        for (let waitingRoom of waitingRoomList) {
+            if (waitingRoom.waitingRoomId === waitingRoomId) {
+                return waitingRoom;
             }
         }
     }
 }
 
 function removeWaitingRoom(waitingRoomId) {
-    for (let gameTypeMap of waitingRoomMap.values()) {
-        for (let waitingRoomList of gameTypeMap.values()) {
-            const index = waitingRoomList.findIndex(element => element.waitingRoomId === waitingRoomId);
-            if (index !== -1) {
-                waitingRoomList[index].clear();
-                waitingRoomList.splice(index, 1);
-                return;
-            };
-        }
+    for (let waitingRoomList of waitingRoomMap.values()) {
+        const index = waitingRoomList.findIndex(element => element.waitingRoomId === waitingRoomId);
+        if (index !== -1) {
+            waitingRoomList[index].clear();
+            waitingRoomList.splice(index, 1);
+            return;
+        };
     }
 }
 
-function issueMatchmakingTicket(userId, gameType, matchType, rating) {
+function issueMatchmakingTicket(userId, matchType, subGameId, mapId, rating) {
     const matchmakingTicket = new MatchmakingTicket();
     matchmakingTicket.ticketId = uuid.v4();
     matchmakingTicket.creator = userId;
-    matchmakingTicket.gameType = gameType;
     matchmakingTicket.matchType = matchType;
+    matchmakingTicket.subGameId = subGameId;
+    matchmakingTicket.mapId = mapId;
     matchmakingTicket.rating = rating;
 
     return matchmakingTicket;
 }
 
 async function joinOrCreateWaitingRoom(userMatchState, matchmakingTicket) {
-    const gameType = matchmakingTicket.gameType;
     const matchType = matchmakingTicket.matchType;
+    const subGameId = matchmakingTicket.subGameId;
+    const mapId = matchmakingTicket.mapId;
 
-    if (waitingRoomMap.has(gameType) === false) {
-        waitingRoomMap.set(gameType, new Map());
+    const key = matchType + subGameId + mapId;
+
+    if (waitingRoomMap.has(key) === false) {
+        waitingRoomMap.set(key, []);
     }
 
-    if (waitingRoomMap.get(gameType).has(matchType) === false) {
-        waitingRoomMap.get(gameType).set(matchType, []);
-    }
-
-    const roomList = waitingRoomMap.get(gameType).get(matchType);
+    const roomList = waitingRoomMap.get(key);
 
     let waitingRoom = findSuitableWaitingRoom(roomList, matchmakingTicket.rating, 200);
     if (waitingRoom === undefined) {
-        const index = findIndexLowerRatingWaitingRoom(roomList, matchmakingTicket.rating);
+
+        const subGameData = global.masterData.subGameData.get(matchmakingTicket.subGameId);
 
         waitingRoom = new WaitingRoom();
         waitingRoom.waitingRoomId = uuid.v4();
-        waitingRoom.gameType = gameType;
         waitingRoom.matchType = matchType;
+        waitingRoom.subGameId = subGameId;
+        waitingRoom.mapId = mapId;
         waitingRoom.targetRating = matchmakingTicket.rating;
         waitingRoom.created = Date.now();
         waitingRoom.waitingPlayerList = [];
         waitingRoom.matchmakingTicketList = [];
-        waitingRoom.maxWaitngTime = 500;
-        waitingRoom.minPlayerCount = 1; //  ?
-        waitingRoom.maxPlayerCount = 8; //  ?
+        waitingRoom.maxWaitngTime = 10 * 60;
+        waitingRoom.minPlayerCount = subGameData.minPlayerCount;
+        waitingRoom.maxPlayerCount = subGameData.maxPlayerCount;
         waitingRoom.status = 'waitingPlayers';
+
+        const index = findIndexLowerRatingWaitingRoom(roomList, matchmakingTicket.rating);
 
         try {
             await waitingRoom.alive();
@@ -353,13 +383,11 @@ async function processWaitingRoom(waitingRoom) {
 }
 
 async function matchmakingUpdate() {
-    for (const gameTypeMap of waitingRoomMap.values()) {
-        for (const waitingRoomList of gameTypeMap.values()) {
-            for (let i = waitingRoomList.length - 1; i >= 0; --i) {
-                const waitingRoom = waitingRoomList[i];
-                if (waitingRoom.waitingPlayerList.length >= waitingRoom.minPlayerCount && waitingRoom.status === 'waitingPlayers') {
-                    processWaitingRoom(waitingRoom);
-                }
+    for (const waitingRoomList of waitingRoomMap.values()) {
+        for (let i = waitingRoomList.length - 1; i >= 0; --i) {
+            const waitingRoom = waitingRoomList[i];
+            if (waitingRoom.waitingPlayerList.length >= waitingRoom.minPlayerCount && waitingRoom.status === 'waitingPlayers') {
+                processWaitingRoom(waitingRoom);
             }
         }
     }

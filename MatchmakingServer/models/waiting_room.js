@@ -6,8 +6,9 @@ const waitingRoomKeyFormat = `waitingRoom:%s`;
 module.exports = class WaitingRoom {
     constructor() {
         this.waitingRoomId = '';
-        this.gameType = '';
         this.matchType = '';
+        this.subGameId = '';
+        this.mapId = '';
         this.targetRating = -1;
         this.created = -1;
         this.waitingPlayerList = [];

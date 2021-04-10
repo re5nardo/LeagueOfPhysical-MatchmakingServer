@@ -5,8 +5,9 @@ var Schema = mongoose.Schema;
 var matchmakingTicketSchema = new Schema({
     ticketId: String,
     creator: String,
-    gameType: String,
     matchType: String,
+    subGameId: String,
+    mapId: String,
     rating: Number,
     createdAt: {
         type: Date,
