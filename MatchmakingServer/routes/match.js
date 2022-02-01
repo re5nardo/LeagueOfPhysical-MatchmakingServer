@@ -15,7 +15,7 @@ const CancelMatchmakingTicketResponse = require('../models/response/cancel_match
 const WaitingRoom = require('../models/waiting_room');
 const ResponseCode = require('../response_code');
 
-const gameRoomKeyFormat = `gameRoom:%s`;
+const roomKeyFormat = `room:%s`;
 const waitingRoomKeyFormat = `waitingRoom:%s`;
 
 const waitingRoomMap = new Map();
@@ -98,9 +98,9 @@ async function onCancelMatchmakingTicket(req, res) {
                 await userMatchState.save();
                 return res.json(new CancelMatchmakingTicketResponse(ResponseCode.SUCCESS));
             case 'inGameRoom':
-                const gameRoomKey = util.format(gameRoomKeyFormat, userMatchState.stateValue);
+                const gameRoomKey = util.format(roomKeyFormat, userMatchState.stateValue);
                 if (await global.redis.existsAsync(gameRoomKey) === 1) {
-                    return res.json(new CancelMatchmakingTicketResponse(ResponseCode.UNKNOWN_ERROR));
+                    return res.json(new CancelMatchmakingTicketResponse(ResponseCode.ALREADY_IN_GAME));
                 } else {
                     userMatchState.state = '';
                     userMatchState.stateValue = '';
@@ -149,7 +149,7 @@ async function getUserMatchState(userId) {
                 break;
 
             case 'inGameRoom':
-                const gameRoomKey = util.format(gameRoomKeyFormat, userMatchState.stateValue);
+                const gameRoomKey = util.format(roomKeyFormat, userMatchState.stateValue);
                 if (await global.redis.existsAsync(gameRoomKey) !== 1) {
                     userMatchState.state = '';
                     userMatchState.stateValue = '';
@@ -347,9 +347,11 @@ async function processWaitingRoom(waitingRoom) {
             uri: 'http://127.0.0.1:2000/room/spawnRoom',
             method: 'POST',
             body: {
-                region: 'kr',
-                gameRoomId: uuid.v4(),
+                matchId: uuid.v4(),
                 expectedPlayerList: waitingRoom.waitingPlayerList,
+                matchType: waitingRoom.matchType,
+                subGameId: waitingRoom.subGameId,
+                mapId: waitingRoom.mapId
             },
             json: true
         }
@@ -370,7 +372,7 @@ async function processWaitingRoom(waitingRoom) {
         try {
             let userMatchState = await getUserMatchState(waitingPlayer);
             userMatchState.state = 'inGameRoom';
-            userMatchState.stateValue = response.gameRoomId;
+            userMatchState.stateValue = response.matchId;
             userMatchState.matchmakingTicketId = '';
             await userMatchState.save();
         } catch (error) {

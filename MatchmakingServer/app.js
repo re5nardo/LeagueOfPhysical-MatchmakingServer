@@ -89,12 +89,12 @@ const redlock = new Redlock(
     // or cluster
     [redisReadWrite],
     {
-        // the expected clock drift; for more details
-        // see http://redis.io/topics/distlock
+        // The expected clock drift; for more details see:
+        // http://redis.io/topics/distlock
         driftFactor: 0.01, // multiplied by lock ttl to determine drift time
 
-        // the max number of times Redlock will attempt
-        // to lock a resource before erroring
+        // The max number of times Redlock will attempt to lock a resource
+        // before erroring.
         retryCount: 10,
 
         // the time in ms between attempts
@@ -103,16 +103,29 @@ const redlock = new Redlock(
         // the max time in ms randomly added to retries
         // to improve performance under high contention
         // see https://www.awsarchitectureblog.com/2015/03/backoff.html
-        retryJitter: 200 // time in ms
+        retryJitter: 200, // time in ms
+
+        // The minimum remaining time on a lock before an extension is automatically
+        // attempted with the `using` API.
+        automaticExtensionThreshold: 500, // time in ms
     }
 );
 
-redlock.on('clientError', function (err) {
-    console.error('A redis error has occurred:', err);
+redlock.on("error", (error) => {
+    // Ignore cases where a resource is explicitly marked as locked on a client.
+    if (error instanceof ResourceLockedError) {
+        return;
+    }
+
+    // Log all other errors.
+    console.error(error);
 });
 
 global.redis = {};
 global.redis.redlock = redlock;
+global.redis.expireAsync = util.promisify(redisReadWrite.expire).bind(redisReadWrite);
+global.redis.zaddAsync = util.promisify(redisReadWrite.zadd).bind(redisReadWrite);
+global.redis.zrevrangeAsync = util.promisify(redisReadWrite.zrevrange).bind(redisReadWrite);
 global.redis.getAsync = util.promisify(redisReadWrite.get).bind(redisReadWrite);
 global.redis.mgetAsync = util.promisify(redisReadWrite.mget).bind(redisReadWrite);
 global.redis.setAsync = util.promisify(redisReadWrite.set).bind(redisReadWrite);
