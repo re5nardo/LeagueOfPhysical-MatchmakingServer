@@ -1,14 +1,13 @@
 import { createClient, defineScript } from 'redis';
 import { cacheConnection } from '@caches/index';
+import * as fs from 'fs';
 
 export const redisClient = createClient({
     url: cacheConnection.url,
     scripts: {
         save: defineScript({
             NUMBER_OF_KEYS: 1,
-            SCRIPT:
-                'redis.pcall("SETEX", KEYS[1], ARGV[1], ARGV[2]);' +
-                'return redis.pcall("GET", KEYS[1]);',
+            SCRIPT: fs.readFileSync('./lua/redis/save.lua', 'utf-8'),
             transformArguments(key: string, ttl: number, value: any): Array<string> {
                 return [key, ttl.toString(), JSON.stringify(value)];
             },
@@ -18,8 +17,7 @@ export const redisClient = createClient({
         }),
         count: defineScript({
             NUMBER_OF_KEYS: 0,
-            SCRIPT:
-                'return #redis.pcall("KEYS", ARGV[1]);',
+            SCRIPT: fs.readFileSync('./lua/redis/count.lua', 'utf-8'),
             transformArguments(pattern: string): Array<string> {
                 return [pattern];
             },
@@ -29,9 +27,7 @@ export const redisClient = createClient({
         }),
         findAll: defineScript({
             NUMBER_OF_KEYS: 0,
-            SCRIPT:
-                'local keys = redis.pcall("KEYS", ARGV[1]);' +
-                'return redis.pcall("MGET", unpack(keys));',
+            SCRIPT: fs.readFileSync('./lua/redis/findAll.lua', 'utf-8'),
             transformArguments(pattern: string): Array<string> {
                 return [pattern];
             },
@@ -47,9 +43,7 @@ export const redisClient = createClient({
         }),
         deleteAll: defineScript({
             NUMBER_OF_KEYS: 0,
-            SCRIPT:
-                'local keys = redis.pcall("KEYS", ARGV[1]);' +
-                'return redis.pcall("DEL", unpack(keys));',
+            SCRIPT: fs.readFileSync('./lua/redis/deleteAll.lua', 'utf-8'),
             transformArguments(pattern: string): Array<string> {
                 return [pattern];
             },
