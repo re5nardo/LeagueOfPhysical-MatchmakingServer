@@ -7,31 +7,13 @@
         "name": ""
     },
     "scripts": {
-        "build": "tsc --build",
+        "build": "tsc --build && tsc-alias",
         "clean": "tsc --build --clean",
         "start": "node dist/main",
         "buildNstart": "npm run build && npm run start"
     },
-    "_moduleAliases": {
-        "@src": "dist",
-        "@config": "dist/config",
-        "@controllers": "dist/controllers",
-        "@exceptions": "dist/exceptions",
-        "@interfaces": "dist/interfaces",
-        "@middlewares": "dist/middlewares",
-        "@models": "dist/models",
-        "@routes": "dist/routes",
-        "@services": "dist/services",
-        "@dtos": "dist/dtos",
-        "@daos": "dist/daos",
-        "@repositories": "dist/repositories",
-        "@databases": "dist/databases",
-        "@caches": "dist/caches",
-        "@loaders": "dist/loaders",
-        "@factories": "dist/factories",
-        "@utils": "dist/utils"
-    },
     "dependencies": {
+        "axios": "^0.26.1",
         "bcrypt": "^5.0.1",
         "class-transformer": "^0.4.0",
         "class-validator": "^0.13.1",
@@ -40,16 +22,15 @@
         "dotenv": "^10.0.0",
         "envalid": "^7.1.0",
         "express": "^4.17.1",
+        "fast-xml-parser": "^4.0.7",
         "helmet": "^4.6.0",
-        "module-alias": "^2.2.2",
         "mongoose": "^6.2.1",
         "morgan": "^1.10.0",
         "redis": "^4.0.3",
-        "winston": "^3.3.3",
-        "winston-daily-rotate-file": "^4.5.5",
-        "xml-js": "^1.6.11",
+        "request": "^2.88.2",
         "uuid": "^8.3.2",
-        "request": "^2.88.2"
+        "winston": "^3.3.3",
+        "winston-daily-rotate-file": "^4.5.5"
     },
     "devDependencies": {
         "@types/bcrypt": "^5.0.0",
@@ -59,6 +40,7 @@
         "@types/morgan": "^1.9.3",
         "@types/node": "^16.0.1",
         "@types/validator": "^13.7.1",
+        "tsc-alias": "^1.6.7",
         "typescript": "^4.3.5"
     }
 }
