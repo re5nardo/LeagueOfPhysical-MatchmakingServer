@@ -5,7 +5,7 @@ interface Entity<ID> {
     id: ID;
 }
 
-export class GenericCacheCrudRepository<T extends Entity<ID>, ID> implements CrudRepository<T, ID> {
+export class CacheCrudRepository<T extends Entity<ID>, ID> implements CrudRepository<T, ID> {
 
     private dao: CrudDao<T, ID>;
     private cacheDao: CrudDao<T, ID>;
