@@ -1,10 +1,10 @@
 import { WaitingRoom } from '@interfaces/waitingRoom.interface';
-import { GenericCacheCrudRepository } from '@repositories/genericCacheCrud.repository';
-import { WaitingRoomDaoRedisImpl } from '@daos/waitingRoom.dao.redis';
-import { WaitingRoomDaoMongooseImpl } from '@daos/waitingRoom.dao.mongoose';
+import { CacheCrudRepository } from '@repositories/cacheCrud.repository';
+import { WaitingRoomDaoMongoose } from '@daos/waitingRoom.dao.mongoose';
+import { WaitingRoomDaoRedis } from '@daos/waitingRoom.dao.redis';
 
-export class WaitingRoomRepository extends GenericCacheCrudRepository<WaitingRoom, string> {
+export class WaitingRoomRepository extends CacheCrudRepository<WaitingRoom, string> {
     constructor() {
-        super(new WaitingRoomDaoMongooseImpl(), new WaitingRoomDaoRedisImpl());
+        super(new WaitingRoomDaoMongoose(), new WaitingRoomDaoRedis());
     }
 }

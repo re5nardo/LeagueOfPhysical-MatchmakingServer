@@ -1,10 +1,10 @@
 import { User } from '@interfaces/user.interface';
-import { GenericCacheCrudRepository } from '@repositories/genericCacheCrud.repository';
-import { UserDaoRedisImpl } from '@daos/user.dao.redis';
-import { UserDaoMongooseImpl } from '@daos/user.dao.mongoose';
+import { CacheCrudRepository } from '@repositories/cacheCrud.repository';
+import { UserDaoMongoose } from '@daos/user.dao.mongoose';
+import { UserDaoRedis } from '@daos/user.dao.redis';
 
-export class UserRepository extends GenericCacheCrudRepository<User, string> {
+export class UserRepository extends CacheCrudRepository<User, string> {
     constructor() {
-        super(new UserDaoMongooseImpl(), new UserDaoRedisImpl());
+        super(new UserDaoMongoose(), new UserDaoRedis());
     }
 }
