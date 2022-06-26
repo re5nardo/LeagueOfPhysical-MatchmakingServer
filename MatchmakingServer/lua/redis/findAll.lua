@@ -1,2 +1,6 @@
 local keys = redis.pcall("KEYS", ARGV[1]);
-return redis.pcall("MGET", unpack(keys));
+if #keys == 0 then
+    return;
+else
+    return redis.pcall("MGET", unpack(keys));
+end

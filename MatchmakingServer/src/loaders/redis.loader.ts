@@ -33,9 +33,11 @@ export const redisClient = createClient({
             },
             transformReply(values: string[]): object[] {
                 const objects: object[] = [];
-                for (const value of values) {
-                    if (value) {
-                        objects.push(JSON.parse(value));
+                if (values) {
+                    for (const value of values) {
+                        if (value) {
+                            objects.push(JSON.parse(value));
+                        }
                     }
                 }
                 return objects;
