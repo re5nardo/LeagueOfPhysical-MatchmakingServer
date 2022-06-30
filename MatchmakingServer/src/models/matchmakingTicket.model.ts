@@ -10,7 +10,7 @@ const matchmakingTicketSchema: Schema = new Schema({
     },
     creator: String,
     matchType: {
-        type: String,
+        type: Number,
         enum: MatchType,
     },
     subGameId: String,

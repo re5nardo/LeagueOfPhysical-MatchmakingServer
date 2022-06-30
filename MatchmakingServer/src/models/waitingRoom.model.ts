@@ -9,20 +9,19 @@ const waitingRoomSchema: Schema = new Schema({
         unique: true,
     },
     matchType: {
-        type: String,
+        type: Number,
         enum: MatchType,
     },
     subGameId: String,
     mapId: String,
     targetRating: Number,
     createdAt: Number,
-    waitingPlayerList: [String],
     matchmakingTicketList: [String],
     maxWaitngTime: Number,
     minPlayerCount: Number,
     maxPlayerCount: Number,
     status: {
-        type: String,
+        type: Number,
         enum: WaitingRoomStatus,
     },
 });
