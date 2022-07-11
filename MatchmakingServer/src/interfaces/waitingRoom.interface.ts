@@ -4,17 +4,16 @@ export enum WaitingRoomStatus {
     None = 0,
 }
 
-export class WaitingRoom {
-    public id: string;
-    public matchType: MatchType;
-    public subGameId: string;
-    public mapId: string;
-    public targetRating: number;
-    public createdAt: number;
-    public waitingPlayerList: string[];
-    public matchmakingTicketList: string[];
-    public maxWaitngTime: number;
-    public minPlayerCount: number;
-    public maxPlayerCount: number;
-    public status: WaitingRoomStatus;
+export interface WaitingRoom {
+    id: string;
+    matchType: MatchType;
+    subGameId: string;
+    mapId: string;
+    targetRating: number;
+    createdAt: number;
+    matchmakingTicketList: string[];
+    maxWaitngTime: number;
+    minPlayerCount: number;
+    maxPlayerCount: number;
+    status: WaitingRoomStatus;
 };

@@ -19,5 +19,9 @@ export class ResponseCode {
     public static readonly WAITING_ROOM_NOT_EXIST = 40000;
     //#endregion
 
+    //#region Room
+    public static readonly ROOM_NOT_EXIST = 50000;
+    //#endregion
+
     public static readonly UNKNOWN_ERROR = 5000000;
 }
