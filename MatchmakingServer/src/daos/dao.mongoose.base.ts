@@ -1,5 +1,6 @@
 import { Model } from 'mongoose';
 import { CrudDao } from '@daos/dao.interface';
+import { AnyBulkWriteOperation } from 'mongodb';
 
 interface Entity {
     id: string;
@@ -20,7 +21,7 @@ export abstract class DaoMongooseBase<T extends Entity> implements CrudDao<T, st
 
     public async saveAll(entities: Iterable<T>): Promise<void> {
         try {
-            const writes: object[] = [];
+            const writes: AnyBulkWriteOperation[] = [];
             for (const entity of entities) {
                 writes.push({
                     updateOne: {
