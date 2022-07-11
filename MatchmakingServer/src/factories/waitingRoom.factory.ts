@@ -1,5 +1,6 @@
 import { WaitingRoom, WaitingRoomStatus } from '@interfaces/waitingRoom.interface';
 import { MatchType } from '@interfaces/match.interface';
+import { v4 } from 'uuid';
 
 export class WaitingRoomFactory {
     public static create(properties?: Partial<WaitingRoom>): WaitingRoom {
@@ -8,13 +9,12 @@ export class WaitingRoomFactory {
 
     private static createDefault(): WaitingRoom {
         return {
-            id: '',
+            id: v4(),
             matchType: MatchType.Friendly,
             subGameId: '',
             mapId: '',
             targetRating: 1000,
             createdAt: Date.now(),
-            waitingPlayerList: [],
             matchmakingTicketList: [],
             maxWaitngTime: 500,
             minPlayerCount: 2,
