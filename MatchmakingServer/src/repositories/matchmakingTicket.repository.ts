@@ -1,5 +1,5 @@
 import { MatchmakingTicket } from '@interfaces/matchmakingTicket.interface';
-import { CacheCrudRepository } from '@repositories/cacheCrud.repository';
+import { CacheCrudRepository } from '@repositories/cacheCrudRepository';
 import { MatchmakingTicketDaoMongoose } from '@daos/matchmakingTicket.dao.mongoose';
 import { MatchmakingTicketDaoRedis } from '@daos/matchmakingTicket.dao.redis';
 
