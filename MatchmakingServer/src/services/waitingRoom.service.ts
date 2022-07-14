@@ -1,7 +1,7 @@
 
 import { HttpException } from '@exceptions/HttpException';
 import { isEmpty } from '@utils/util';
-import { WaitingRoomCreateDto } from '@dtos/waitingRoom.dto';
+import { CreateWaitingRoomDto } from '@dtos/waitingRoom.dto';
 import { CreateRoomDto } from '@dtos/room.dto';
 import { UpdateUserLocationDto, UserLocationDto } from '@dtos/user.dto';
 import { WaitingRoomRepository } from '@repositories/waitingRoom.repository';
@@ -80,9 +80,9 @@ class WaitingRoomService {
         }
     }
 
-    public async createWaitingRoom(waitingRoomCreateDto: WaitingRoomCreateDto): Promise<WaitingRoom> {
+    public async createWaitingRoom(createWaitingRoomDto: CreateWaitingRoomDto): Promise<WaitingRoom> {
         try {
-            const waitingRoom = await this.waitingRoomRepository.save(waitingRoomCreateDto.toEntity());
+            const waitingRoom = await this.waitingRoomRepository.save(createWaitingRoomDto.toEntity());
             const waitingRoomUpdater = new WaitingRoomUpdater(waitingRoom.id);
             return waitingRoom;
         } catch (error) {
@@ -106,11 +106,11 @@ class WaitingRoomService {
         }
     }
 
-    public async createWaitingRooms(waitingRoomCreateDtos: WaitingRoomCreateDto[]): Promise<void> {
+    public async createWaitingRooms(createWaitingRoomDtos: CreateWaitingRoomDto[]): Promise<void> {
         try {
             const waitingRooms: WaitingRoom[] = [];
-            for (const waitingRoomCreateDto of waitingRoomCreateDtos) {
-                waitingRooms.push(waitingRoomCreateDto.toEntity());
+            for (const createWaitingRoomDto of createWaitingRoomDtos) {
+                waitingRooms.push(createWaitingRoomDto.toEntity());
             }
             return await this.waitingRoomRepository.saveAll(waitingRooms);
         } catch (error) {
@@ -189,7 +189,7 @@ class WaitingRoomService {
             
             if (waitingRoom === undefined) {
                 const subGameData = MasterData.get(MasterDataType.SubGameData)?.get(matchmakingTicket.subGameId);
-                waitingRoom = await this.createWaitingRoom(new WaitingRoomCreateDto(
+                waitingRoom = await this.createWaitingRoom(new CreateWaitingRoomDto(
                     matchmakingTicket.matchType,
                     matchmakingTicket.subGameId,
                     matchmakingTicket.mapId,

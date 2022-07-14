@@ -4,7 +4,7 @@ import { WaitingRoomStatus, WaitingRoom } from '@interfaces/waitingRoom.interfac
 import { WaitingRoomFactory } from '@factories/waitingRoom.factory';
 import { ResponseBase } from '@interfaces/responseBase.interface';
 
-export class WaitingRoomCreateDto {
+export class CreateWaitingRoomDto {
     @IsEnum(MatchType)
     public matchType: MatchType;
 

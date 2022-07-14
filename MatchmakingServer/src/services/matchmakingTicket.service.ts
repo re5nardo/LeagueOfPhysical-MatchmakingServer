@@ -1,4 +1,4 @@
-import { MatchmakingTicketCreateDto } from '@dtos/matchmakingTicket.dto';
+import { CreateMatchmakingTicketDto } from '@dtos/matchmakingTicket.dto';
 import { HttpException } from '@exceptions/HttpException';
 import { MatchmakingTicket } from '@interfaces/matchmakingTicket.interface';
 import { isEmpty } from '@utils/util';
@@ -42,12 +42,9 @@ class MatchmakingTicketService {
         }
     }
 
-    public async createMatchmakingTicket(matchmakingTicketCreateDto: MatchmakingTicketCreateDto): Promise<MatchmakingTicket> {
+    public async createMatchmakingTicket(createMatchmakingTicketDto: CreateMatchmakingTicketDto): Promise<MatchmakingTicket> {
         try {
-            if (isEmpty(matchmakingTicketCreateDto)) {
-                throw new HttpException(400, 'matchmakingTicketCreateDto is empty');
-            }
-            return await this.matchmakingTicketRepository.save(matchmakingTicketCreateDto.toEntity());
+            return await this.matchmakingTicketRepository.save(createMatchmakingTicketDto.toEntity());
         } catch (error) {
             return Promise.reject(error);
         }
@@ -84,11 +81,11 @@ class MatchmakingTicketService {
         }
     }
 
-    public async createMatchmakingTickets(matchmakingTicketCreateDtos: MatchmakingTicketCreateDto[]): Promise<void> {
+    public async createMatchmakingTickets(createMatchmakingTicketDtos: CreateMatchmakingTicketDto[]): Promise<void> {
         try {
             const matchmakingTickets: MatchmakingTicket[] = [];
-            for (const matchmakingTicketCreateDto of matchmakingTicketCreateDtos) {
-                matchmakingTickets.push(matchmakingTicketCreateDto.toEntity());
+            for (const createMatchmakingTicketDto of createMatchmakingTicketDtos) {
+                matchmakingTickets.push(createMatchmakingTicketDto.toEntity());
             }
             return await this.matchmakingTicketRepository.saveAll(matchmakingTickets);
         } catch (error) {

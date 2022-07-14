@@ -1,5 +1,5 @@
 
-import { MatchmakingRequestDto } from '@dtos/matchmaking.dto';
+import { RequestMatchmakingDto, RequestMatchmakingResponseDto, CancelMatchmakingResponseDto } from '@dtos/matchmaking.dto';
 import { MatchType } from '@interfaces/match.interface';
 import MatchmakingTicketService from '@services/matchmakingTicket.service';
 import WaitingRoomService from '@services/waitingRoom.service';
@@ -15,33 +15,33 @@ class MatchmakingService {
     private waitingRoomService: WaitingRoomService = new WaitingRoomService();
     private userService: UserService = new UserService();
 
-    public async requestMatchmaking(matchmakingRequestDto: MatchmakingRequestDto): Promise<{ code: number, ticketId?: string }> {
+    public async requestMatchmaking(requestMatchmakingDto: RequestMatchmakingDto): Promise<RequestMatchmakingResponseDto> {
         try {
-            const getUserResponseDto = await this.userService.findUserById(matchmakingRequestDto.userId);
+            const getUserResponseDto = await this.userService.findUserById(requestMatchmakingDto.userId);
             const user = getUserResponseDto.user;
             if (!user) {
                 return {
                     code: ResponseCode.USER_NOT_EXIST,
-                }
+                };
             }
 
             if (this.validateToMatchmaking(user) !== true) {
                 return {
                     code: ResponseCode.INVALID_TO_MATCH_MAKING,
-                }
+                };
             }
 
-            const targetRating = matchmakingRequestDto.matchType === MatchType.Rank ? user.rankRating : user.friendlyRating;
+            const targetRating = requestMatchmakingDto.matchType === MatchType.Rank ? user.rankRating : user.friendlyRating;
 
             //  트랜잭션으로 묶어서 처리해야 할 것 같은데...
             //  흠...
 
             //  issue matchmakingTicket
             const matchmakingTicket = await this.matchmakingTicketService.issueMatchmakingTicket(
-                matchmakingRequestDto.userId,
-                matchmakingRequestDto.matchType,
-                matchmakingRequestDto.subGameId,
-                matchmakingRequestDto.mapId,
+                requestMatchmakingDto.userId,
+                requestMatchmakingDto.matchType,
+                requestMatchmakingDto.subGameId,
+                requestMatchmakingDto.mapId,
                 targetRating
             );
 
@@ -57,7 +57,7 @@ class MatchmakingService {
 
                 const updateUserLocationDto: UpdateUserLocationDto = {
                     userLocations: [{
-                        userId: matchmakingRequestDto.userId,
+                        userId: requestMatchmakingDto.userId,
                         location: Location.InWaitingRoom,
                         locationDetail: waitingRoomLocationDetail
                     }]
@@ -68,7 +68,7 @@ class MatchmakingService {
                 return {
                     code: ResponseCode.SUCCESS,
                     ticketId: matchmakingTicket.id
-                }
+                };
             } else {
 
                 await this.matchmakingTicketService.deleteMatchmakingTicket(matchmakingTicket); //  자동 소멸? (ttl 10분?)
@@ -76,7 +76,7 @@ class MatchmakingService {
                 //  update userMatchState
                 const updateUserLocationDto: UpdateUserLocationDto = {
                     userLocations: [{
-                        userId: matchmakingRequestDto.userId,
+                        userId: requestMatchmakingDto.userId,
                         location: Location.Unknown,
                         locationDetail: {
                             location: Location.Unknown,
@@ -88,32 +88,40 @@ class MatchmakingService {
 
                 return {
                     code: ResponseCode.UNKNOWN_ERROR,
-                }
+                };
             }
         } catch (error) {
             return Promise.reject(error);
         }
     }
 
-    public async cancelMatchmaking(ticketId: string): Promise<number> {
+    public async cancelMatchmaking(ticketId: string): Promise<CancelMatchmakingResponseDto> {
         try {
             const matchmakingTicket = await this.matchmakingTicketService.findMatchmakingTicketById(ticketId);
             if (!matchmakingTicket) {
-                return ResponseCode.MATCH_MAKING_TICKET_NOT_EXIST;
+                return {
+                    code: ResponseCode.MATCH_MAKING_TICKET_NOT_EXIST
+                };
             }
 
             const getUserResponseDto = await this.userService.findUserById(matchmakingTicket.creator);
             const user = getUserResponseDto.user;
             if (!user) {
-                return ResponseCode.USER_NOT_EXIST;
+                return {
+                    code: ResponseCode.USER_NOT_EXIST
+                };
             }
 
             //  check state (if already in game or inWaiting)
             switch (+user.location) {
                 case Location.Unknown:
-                    return ResponseCode.NOT_MATCH_MAKING_STATE;
+                    return {
+                        code: ResponseCode.NOT_MATCH_MAKING_STATE
+                    };
                 case Location.InGameRoom:
-                    return ResponseCode.ALREADY_IN_GAME;
+                    return {
+                        code: ResponseCode.ALREADY_IN_GAME
+                    };
             }
 
             const waitingRoomLocationDetail = user.locationDetail as WaitingRoomLocationDetail;
@@ -134,7 +142,9 @@ class MatchmakingService {
 
             await this.userService.updateUserLocation(updateUserLocationDto);
 
-            return ResponseCode.SUCCESS;
+            return {
+                code: ResponseCode.SUCCESS
+            };
         } catch (error) {
             return Promise.reject(error);
         }

@@ -2,7 +2,7 @@ import { IsNumber, IsString, IsEnum, IsObject } from 'class-validator';
 import { MatchType } from '@interfaces/match.interface';
 import { ResponseBase } from '@interfaces/responseBase.interface';
 
-export class MatchmakingRequestDto {
+export class RequestMatchmakingDto {
     @IsString()
     public userId: string;
 
@@ -16,9 +16,9 @@ export class MatchmakingRequestDto {
     public mapId: string;
 }
 
-export class MatchmakingResponseDto implements ResponseBase {
+export class RequestMatchmakingResponseDto implements ResponseBase {
     public code: number;
-    public ticketId: string;
+    public ticketId?: string;
 }
 
 export class CancelMatchmakingResponseDto implements ResponseBase {

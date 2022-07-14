@@ -2,7 +2,7 @@ import { Router } from 'express';
 import MatchmakingController from '@controllers/matchmaking.controller';
 import { Routes } from '@interfaces/routes.interface';
 import validationMiddleware from '@middlewares/validation.middleware';
-import { MatchmakingRequestDto } from '@dtos/matchmaking.dto';
+import { RequestMatchmakingDto } from '@dtos/matchmaking.dto';
 
 class MatchmakingRoute implements Routes {
     public path = '/matchmaking';
@@ -14,7 +14,7 @@ class MatchmakingRoute implements Routes {
     }
 
     private initializeRoutes() {
-        this.router.post(`${this.path}`, validationMiddleware(MatchmakingRequestDto, 'body'), this.matchmakingController.requestMatchmaking);
+        this.router.post(`${this.path}`, validationMiddleware(RequestMatchmakingDto, 'body'), this.matchmakingController.requestMatchmaking);
         this.router.delete(`${this.path}/:ticketId`, this.matchmakingController.cancelMatchmaking);
     }
 }
