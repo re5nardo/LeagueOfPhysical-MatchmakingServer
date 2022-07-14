@@ -28,6 +28,11 @@ class WaitingRoomService {
                 return false;
             }
 
+            const matchmakingTicket = await this.matchmakingTicketService.findMatchmakingTicketById(matchmakingTicketId);
+            if (!matchmakingTicket) {
+                return false;
+            }
+
             if (!waitingRoom.matchmakingTicketList.includes(matchmakingTicketId)) {
                 return false;
             }
@@ -77,9 +82,6 @@ class WaitingRoomService {
 
     public async createWaitingRoom(waitingRoomCreateDto: WaitingRoomCreateDto): Promise<WaitingRoom> {
         try {
-            if (isEmpty(waitingRoomCreateDto)) {
-                throw new HttpException(400, 'waitingRoomCreateDto is empty');
-            }
             const waitingRoom = await this.waitingRoomRepository.save(waitingRoomCreateDto.toEntity());
             const waitingRoomUpdater = new WaitingRoomUpdater(waitingRoom.id);
             return waitingRoom;
@@ -159,14 +161,34 @@ class WaitingRoomService {
                 return undefined;
             }
 
-            //  findSuitableWaitingRoom
-            const subGameData = MasterData.get(MasterDataType.SubGameData)?.get(matchmakingTicket.subGameId);
-
-            let waitingRoom: WaitingRoom;
+            //  find suitable WaitingRoom
+            let waitingRoom: WaitingRoom | undefined;
             const waitingRooms = await this.waitingRoomRepository.findAll() as WaitingRoom[];
             if (waitingRooms && waitingRooms.length > 0) {
-                waitingRoom = waitingRooms[0];
-            } else {
+                const ratingRange = 200;
+                for (const candidate of waitingRooms) {
+                    const waitingPlayerIds: string[] = [];
+                    const matchmakingTickets = await this.matchmakingTicketService.findAllMatchmakingTicketsById(candidate.matchmakingTicketList);
+                    matchmakingTickets?.forEach(matchmakingTicket => {
+                        waitingPlayerIds.push(matchmakingTicket.creator);
+                    });
+                    const isFull = waitingPlayerIds.length >= candidate.maxPlayerCount;
+                    if (Math.abs(candidate.targetRating - matchmakingTicket.rating) <= ratingRange && isFull === false) {
+                        waitingRoom = candidate;
+                        break;
+                    }
+                }
+                
+                if (!waitingRoom) {
+                    waitingRooms.sort((x: WaitingRoom, y: WaitingRoom): number => {
+                        return x.targetRating - y.targetRating;
+                    });
+                    waitingRoom = waitingRooms.find(x => x.targetRating <= matchmakingTicket.rating);
+                }
+            }
+            
+            if (waitingRoom === undefined) {
+                const subGameData = MasterData.get(MasterDataType.SubGameData)?.get(matchmakingTicket.subGameId);
                 waitingRoom = await this.createWaitingRoom(new WaitingRoomCreateDto(
                     matchmakingTicket.matchType,
                     matchmakingTicket.subGameId,
@@ -189,124 +211,68 @@ class WaitingRoomService {
     }
 
     //  간섭 발생하지 않게 Transaction 처리 해야 할 듯한디
+    //  updateWaitingRoom 처리 중에 다시 updateWaitingRoom 호출되지 않는 구조이긴한데.. 더 근본적으로 막을 수 있는.. 방법이..
     public async updateWaitingRoom(waitingRoomId: string): Promise<void> {
         try {
-
-            //  여러 번 호출 될 때 skip 처리?? 또는 대기 처리?? 스킵처리가 속 편할 것도 같은데..
-
             const waitingRoom = await this.waitingRoomRepository.findById(waitingRoomId);
-            if (waitingRoom) {
-                const elapsedTime = (Date.now() - waitingRoom.createdAt) / 1000;
+            if (!waitingRoom) {
+                console.log(`No waitingRoom to update. waitingRoomId: ${waitingRoomId}`);
+                return;
+            }
 
-                const matchmakingTickets = await this.matchmakingTicketService.findAllMatchmakingTicketsById(waitingRoom.matchmakingTicketList);
-                const waitingPlayerIds: string[] = [];
-                matchmakingTickets?.forEach(matchmakingTicket => {
-                    waitingPlayerIds.push(matchmakingTicket.creator);
-                });
+            const matchmakingTickets = await this.matchmakingTicketService.findAllMatchmakingTicketsById(waitingRoom.matchmakingTicketList);
+            const waitingPlayerIds: string[] = [];
+            matchmakingTickets?.forEach(matchmakingTicket => {
+                waitingPlayerIds.push(matchmakingTicket.creator);
+            });
 
-                //  최소 인원 충족 여부가 가장 중요
-                if (waitingPlayerIds.length < waitingRoom.minPlayerCount) {
-                    return;
-                }
+            //  최소 인원 충족 여부가 가장 중요
+            if (waitingPlayerIds.length < waitingRoom.minPlayerCount) {
+                return;
+            }
 
-                //  풀 인원이면 또는 최대 대기시간 넘으면 무조건 ㄱㄱ
-                if (waitingPlayerIds.length >= waitingRoom.maxPlayerCount
-                    || waitingRoom.maxWaitngTime <= elapsedTime) {
+            const elapsedTime = (Date.now() - waitingRoom.createdAt) / 1000;
 
-                    const roomCreateDto: CreateRoomDto = {
-                        matchType: waitingRoom.matchType,
-                        subGameId: waitingRoom.subGameId,
-                        mapId: waitingRoom.mapId,
-                        targetRating: waitingRoom.targetRating,
-                        exptectedPlayerList: waitingPlayerIds
-                    };
+            //  풀 인원이면 또는 최대 대기시간 넘으면 무조건 ㄱㄱ
+            if (waitingPlayerIds.length >= waitingRoom.maxPlayerCount
+                || elapsedTime >= waitingRoom.maxWaitngTime) {
 
-                    const createRoomResponseDto = await this.roomService.createRoom(roomCreateDto);
-                    if (createRoomResponseDto.code === ResponseCode.SUCCESS && createRoomResponseDto.room !== undefined) {
+                const roomCreateDto: CreateRoomDto = {
+                    matchType: waitingRoom.matchType,
+                    subGameId: waitingRoom.subGameId,
+                    mapId: waitingRoom.mapId,
+                    targetRating: waitingRoom.targetRating,
+                    exptectedPlayerList: waitingPlayerIds
+                };
 
-                        const matchmakingTicketList = await this.matchmakingTicketService.findAllMatchmakingTicketsById(waitingRoom.matchmakingTicketList);
-                        const waitingPlayerIds: string[] = [];
-                        matchmakingTicketList?.forEach(matchmakingTicket => {
-                            waitingPlayerIds.push(matchmakingTicket.creator);
-                        });
+                const createRoomResponseDto = await this.roomService.createRoom(roomCreateDto);
+                if (createRoomResponseDto.code === ResponseCode.SUCCESS && createRoomResponseDto.room !== undefined) {
+                    //  remove matchmakingTicketList
+                    await this.matchmakingTicketService.deleteAllMatchmakingTicketsById(waitingRoom.matchmakingTicketList);
 
-                        //  remove matchmakingTicketList
-                        await this.matchmakingTicketService.deleteAllMatchmakingTickets(matchmakingTicketList);
+                    //  update user locations
+                    const updateUserLocationDto = new UpdateUserLocationDto();
+                    const findAllUsersDto = await this.userService.findAllUsersById(waitingPlayerIds);
+                    const roomId = createRoomResponseDto.room.id;
 
-                        //  update user locations
-                        const updateUserLocationDto = new UpdateUserLocationDto();
-                        const findAllUsersDto = await this.userService.findAllUsersById(waitingPlayerIds);
-                        const roomId = createRoomResponseDto.room.id;
-
-                        findAllUsersDto.users?.forEach(user => {
-                            const userLocationDto = new UserLocationDto();
-                            userLocationDto.userId = user.id,
+                    findAllUsersDto.users?.forEach(user => {
+                        const userLocationDto = new UserLocationDto();
+                        userLocationDto.userId = user.id,
                             userLocationDto.location = Location.InGameRoom,
                             userLocationDto.locationDetail = new GameRoomLocationDetail(Location.InGameRoom, roomId);
-                            updateUserLocationDto.userLocations.push(userLocationDto);
-                        });
+                        updateUserLocationDto.userLocations.push(userLocationDto);
+                    });
 
-                        const response = await this.userService.updateUserLocation(updateUserLocationDto);
+                    const response = await this.userService.updateUserLocation(updateUserLocationDto);
 
-                        //remove waitingRoom
-                        await this.waitingRoomRepository.deleteById(waitingRoom.id);
-                    }
+                    //remove waitingRoom
+                    await this.waitingRoomRepository.deleteById(waitingRoom.id);
                 }
-            } else {
-
             }
         } catch (error) {
             return Promise.reject(error);
         }
     }
-
-    //         const index = findIndexLowerRatingWaitingRoom(roomList, matchmakingTicket.rating);
-
-    //         try {
-    //             await waitingRoom.alive();
-    //             roomList.splice(index + 1, 0, waitingRoom);
-    //         } catch (error) {
-    //             console.error(error);
-    //             removeWaitingRoom(waitingRoom.waitingRoomId);
-    //             return false;
-    //         }
-    //     }
-
-    //     try {
-    //         userMatchState.state = 'inWaitingRoom';
-    //         userMatchState.stateValue = waitingRoom.waitingRoomId;
-    //         userMatchState.matchmakingTicketId = matchmakingTicket.ticketId;
-    //         await userMatchState.save();
-    //         waitingRoom.waitingPlayerList.push(userMatchState.userId);
-    //         return true;
-    //     } catch (error) {
-    //         console.error(error);
-    //         return false;
-    //     }
-
-    //     return false;
-    // }
-    // }
 }
 
 export default WaitingRoomService;
-
-// module.exports = class WaitingRoom {
-//     constructor() {
-//         this. = 'waitingPlayers';   //  waitingPlayers, waitingGameRoom, ...
-
-//         this.timerId = setInterval(this.alive.bind(this), 7 * 1000);
-//     }
-
-//     isFull() {
-//         return this.waitingPlayerList.length === this.maxPlayerCount;
-//     }
-
-//     clear() {
-//         clearInterval(this.timerId);
-//     }
-
-//     async alive() {
-//         await global.redis.setexAsync(util.format(waitingRoomKeyFormat, this.waitingRoomId), 10, Date.now());
-//     }
-// }
