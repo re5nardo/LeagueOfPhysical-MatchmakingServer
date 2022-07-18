@@ -5,6 +5,7 @@ import { isEmpty } from '@utils/util';
 import { MatchmakingTicketRepository } from '@repositories/matchmakingTicket.repository';
 import { MatchType } from '@interfaces/match.interface';
 import { MatchmakingTicketFactory } from '@factories/matchmakingTicket.factory';
+import { MatchmakingTicketMapper } from '@mappers/matchmakingTicket.mapper';
 
 class MatchmakingTicketService {
     
@@ -44,7 +45,7 @@ class MatchmakingTicketService {
 
     public async createMatchmakingTicket(createMatchmakingTicketDto: CreateMatchmakingTicketDto): Promise<MatchmakingTicket> {
         try {
-            return await this.matchmakingTicketRepository.save(createMatchmakingTicketDto.toEntity());
+            return await this.matchmakingTicketRepository.save(MatchmakingTicketMapper.CreateMatchmakingTicketDto.toEntity(createMatchmakingTicketDto));
         } catch (error) {
             return Promise.reject(error);
         }
@@ -85,7 +86,7 @@ class MatchmakingTicketService {
         try {
             const matchmakingTickets: MatchmakingTicket[] = [];
             for (const createMatchmakingTicketDto of createMatchmakingTicketDtos) {
-                matchmakingTickets.push(createMatchmakingTicketDto.toEntity());
+                matchmakingTickets.push(MatchmakingTicketMapper.CreateMatchmakingTicketDto.toEntity(createMatchmakingTicketDto));
             }
             return await this.matchmakingTicketRepository.saveAll(matchmakingTickets);
         } catch (error) {

@@ -1,7 +1,8 @@
 import { NextFunction, Request, Response } from 'express';
-import { GetWaitingRoomResponseDto, WaitingRoomResponseDto } from '@dtos/waitingRoom.dto';
+import { GetWaitingRoomResponseDto } from '@dtos/waitingRoom.dto';
 import WaitingRoomService from '@services/waitingRoom.service';
 import { ResponseCode } from '@interfaces/responseCode.interface';
+import { WaitingRoomMapper } from '@mappers/waitingRoom.mapper';
 
 class WaitingRoomController {
     private waitingRoomService = new WaitingRoomService();
@@ -14,7 +15,7 @@ class WaitingRoomController {
             if (findOne) {
                 const response: GetWaitingRoomResponseDto = {
                     code: ResponseCode.SUCCESS,
-                    waitingRoom: WaitingRoomResponseDto.from(findOne)
+                    waitingRoom: WaitingRoomMapper.toWaitingRoomResponseDto(findOne)
                 }
                 res.status(200).json(response);
             } else {

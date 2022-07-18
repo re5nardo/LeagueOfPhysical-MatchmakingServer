@@ -13,6 +13,7 @@ import { WaitingRoomUpdater } from '@src/updater/waitingRoomUpdater';
 import RoomService from '@services/room.service';
 import UserService from '@services/user.service';
 import { Location, GameRoomLocationDetail } from '@interfaces/user.location.interface';
+import { WaitingRoomMapper } from '@mappers/waitingRoom.mapper';
 
 class WaitingRoomService {
 
@@ -82,7 +83,7 @@ class WaitingRoomService {
 
     public async createWaitingRoom(createWaitingRoomDto: CreateWaitingRoomDto): Promise<WaitingRoom> {
         try {
-            const waitingRoom = await this.waitingRoomRepository.save(createWaitingRoomDto.toEntity());
+            const waitingRoom = await this.waitingRoomRepository.save(WaitingRoomMapper.CreateWaitingRoomDto.toEntity(createWaitingRoomDto));
             const waitingRoomUpdater = new WaitingRoomUpdater(waitingRoom.id);
             return waitingRoom;
         } catch (error) {
@@ -110,7 +111,7 @@ class WaitingRoomService {
         try {
             const waitingRooms: WaitingRoom[] = [];
             for (const createWaitingRoomDto of createWaitingRoomDtos) {
-                waitingRooms.push(createWaitingRoomDto.toEntity());
+                waitingRooms.push(WaitingRoomMapper.CreateWaitingRoomDto.toEntity(createWaitingRoomDto));
             }
             return await this.waitingRoomRepository.saveAll(waitingRooms);
         } catch (error) {

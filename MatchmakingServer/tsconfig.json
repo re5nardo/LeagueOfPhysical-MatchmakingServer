@@ -29,6 +29,7 @@
             "@caches/*": ["src/caches/*"],
             "@loaders/*": ["src/loaders/*"],
             "@factories/*": ["src/factories/*"],
+            "@mappers/*": ["src/mappers/*"],
             "@config": ["src/config"],
           }
     },

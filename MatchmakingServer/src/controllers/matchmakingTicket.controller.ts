@@ -1,7 +1,8 @@
 import { NextFunction, Request, Response } from 'express';
 import MatchmakingTicketService from '@services/matchmakingTicket.service';
-import { MatchmakingTicketResponseDto, GetMatchmakingTicketResponseDto } from '@dtos/matchmakingTicket.dto';
+import { GetMatchmakingTicketResponseDto } from '@dtos/matchmakingTicket.dto';
 import { ResponseCode } from '@interfaces/responseCode.interface';
+import { MatchmakingTicketMapper } from '@mappers/matchmakingTicket.mapper';
 
 class MatchmakingTicketController {
     private matchmakingTicketService = new MatchmakingTicketService();
@@ -14,7 +15,7 @@ class MatchmakingTicketController {
             if (findOne) {
                 const response: GetMatchmakingTicketResponseDto = {
                     code: ResponseCode.SUCCESS,
-                    matchmakingTicket: MatchmakingTicketResponseDto.from(findOne)
+                    matchmakingTicket: MatchmakingTicketMapper.toMatchmakingTicketResponseDto(findOne)
                 }
                 res.status(200).json(response);
             } else {

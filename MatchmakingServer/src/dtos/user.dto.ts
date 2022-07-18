@@ -1,6 +1,5 @@
 import { IsNumber, IsString, IsEnum, IsObject, IsArray, ValidateNested } from 'class-validator';
 import { Location, LocationDetail } from '@interfaces/user.location.interface';
-import { User } from '@interfaces/user.interface';
 import { ResponseBase } from '@interfaces/responseBase.interface';
 
 export class UpdateUserLocationDto {
@@ -31,22 +30,6 @@ export class UserResponseDto {
     public gem: number;
     public location: Location;
     public locationDetail: LocationDetail;
-
-    private constructor(user: User) {
-        this.id = user.id;
-        this.nickname = user.nickname;
-        this.masterExp = user.masterExp;
-        this.friendlyRating = user.friendlyRating;
-        this.rankRating = user.rankRating;
-        this.goldCoin = user.goldCoin;
-        this.gem = user.gem;
-        this.location = user.location;
-        this.locationDetail = user.locationDetail;
-    }
-
-    public static from(user: User): UserResponseDto {
-        return new UserResponseDto(user);
-    }
 }
 
 export class GetUserResponseDto implements ResponseBase {
