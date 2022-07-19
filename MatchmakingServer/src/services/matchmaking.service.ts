@@ -127,6 +127,11 @@ class MatchmakingService {
             const waitingRoomLocationDetail = user.locationDetail as WaitingRoomLocationDetail;
 
             const result = await this.waitingRoomService.leaveWaitingRoom(waitingRoomLocationDetail.waitingRoomId, waitingRoomLocationDetail.matchmakingTicketId);
+            if (result === false) {
+                return {
+                    code: ResponseCode.FAIL_TO_LEAVE_WAITING_ROOM
+                };
+            }
             const ticket = await this.matchmakingTicketService.deleteMatchmakingTicketById(ticketId);
 
             //  update userMatchState

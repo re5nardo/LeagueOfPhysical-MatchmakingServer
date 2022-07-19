@@ -17,6 +17,7 @@ export class ResponseCode {
 
     //#region WaitingRoom
     public static readonly WAITING_ROOM_NOT_EXIST = 40000;
+    public static readonly FAIL_TO_LEAVE_WAITING_ROOM = 40001;
     //#endregion
 
     //#region Room
