@@ -19,8 +19,10 @@ export class WaitingRoomUpdater implements Updatable {
     private async updateAsync(delta: number): Promise<void> {
         try {
             Updater.Unregister(this);
-            await this.waitingRoomService.updateWaitingRoom(this.waitingRoomId);
-            Updater.Register(this);
+            const result = await this.waitingRoomService.updateWaitingRoom(this.waitingRoomId);
+            if (result) {
+                Updater.Register(this);
+            }
         } catch (error) {
             return Promise.reject(error);
         }

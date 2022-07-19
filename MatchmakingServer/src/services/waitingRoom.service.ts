@@ -213,12 +213,12 @@ class WaitingRoomService {
 
     //  간섭 발생하지 않게 Transaction 처리 해야 할 듯한디
     //  updateWaitingRoom 처리 중에 다시 updateWaitingRoom 호출되지 않는 구조이긴한데.. 더 근본적으로 막을 수 있는.. 방법이..
-    public async updateWaitingRoom(waitingRoomId: string): Promise<void> {
+    public async updateWaitingRoom(waitingRoomId: string): Promise<boolean> {
         try {
             const waitingRoom = await this.waitingRoomRepository.findById(waitingRoomId);
             if (!waitingRoom) {
                 console.log(`No waitingRoom to update. waitingRoomId: ${waitingRoomId}`);
-                return;
+                return false;
             }
 
             const matchmakingTickets = await this.matchmakingTicketService.findAllMatchmakingTicketsById(waitingRoom.matchmakingTicketList);
@@ -229,7 +229,7 @@ class WaitingRoomService {
 
             //  최소 인원 충족 여부가 가장 중요
             if (waitingPlayerIds.length < waitingRoom.minPlayerCount) {
-                return;
+                return true;
             }
 
             const elapsedTime = (Date.now() - waitingRoom.createdAt) / 1000;
@@ -270,6 +270,7 @@ class WaitingRoomService {
                     await this.waitingRoomRepository.deleteById(waitingRoom.id);
                 }
             }
+            return true;
         } catch (error) {
             return Promise.reject(error);
         }
