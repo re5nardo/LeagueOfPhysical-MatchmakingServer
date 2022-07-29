@@ -3,7 +3,7 @@ import { CrudDao } from '@daos/dao.interface';
 
 export class CrudRepositoryBase<T, ID> implements CrudRepository<T, ID> {
 
-    private dao: CrudDao<T, ID>;
+    protected dao: CrudDao<T, ID>;
 
     constructor(dao: CrudDao<T, ID>) {
         this.dao = dao;
