@@ -3,12 +3,16 @@ export class ResponseCode {
     
     public static readonly SUCCESS = 0;
 
-    //#region Match
+    //#region MatchMaking
     public static readonly INVALID_TO_MATCH_MAKING = 10000;
     public static readonly ALREADY_IN_GAME = 10001;
 
     public static readonly MATCH_MAKING_TICKET_NOT_EXIST = 10100;
     public static readonly NOT_MATCH_MAKING_STATE = 10101;
+    //#endregion
+
+    //#region Match
+    public static readonly MATCH_NOT_EXIST = 20000;
     //#endregion
 
     //#region User
