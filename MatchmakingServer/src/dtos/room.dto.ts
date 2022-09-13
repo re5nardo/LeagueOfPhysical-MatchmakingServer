@@ -1,6 +1,7 @@
 import { IsNumber, IsString, IsEnum, IsArray, IsOptional } from 'class-validator';
 import { MatchType } from '@interfaces/match.interface';
 import { ResponseBase } from '@interfaces/responseBase.interface';
+import { RoomStatus } from '@interfaces/room.interface';
 
 export class CreateRoomDto {
     @IsEnum(MatchType)
@@ -22,9 +23,6 @@ export class CreateRoomDto {
 export class RoomResponseDto {
     public id: string;
     public matchId: string;
-    public matchType: MatchType;
-    public subGameId: string;
-    public mapId: string;
     public status: RoomStatus;
     public ip: string;
     public port: number;
@@ -33,13 +31,4 @@ export class RoomResponseDto {
 export class CreateRoomResponseDto implements ResponseBase {
     public code: number;
     public room?: RoomResponseDto;
-}
-
-export enum RoomStatus {
-    None = 0,
-    Spawning = 1,
-    Spawned = 2,
-    Ready = 3,
-    Playing = 4,
-    Finished = 5,
 }
