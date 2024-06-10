@@ -1,7 +1,7 @@
 
 export class ResponseCode {
     
-    public static readonly SUCCESS = 0;
+    public static readonly SUCCESS = 200;
 
     //#region MatchMaking
     public static readonly INVALID_TO_MATCH_MAKING = 10000;
