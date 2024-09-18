@@ -14,6 +14,8 @@ import RoomService from '@services/room.service';
 import UserService from '@services/user.service';
 import { Location, GameRoomLocationDetail } from '@interfaces/user.location.interface';
 import { WaitingRoomMapper } from '@mappers/waitingRoom.mapper';
+import MatchService from '@services/match.service';
+import { CreateMatchDto } from '@src/dtos/match.dto';
 
 class WaitingRoomService {
 
@@ -21,6 +23,7 @@ class WaitingRoomService {
     private matchmakingTicketService = new MatchmakingTicketService();
     private roomService = new RoomService();
     private userService = new UserService();
+    private matchService = new MatchService();
 
     public async leaveWaitingRoom(waitingRoomId: string, matchmakingTicketId: string): Promise</*MatchmakingTicketResponseDto*/boolean> {
         try {
@@ -237,16 +240,23 @@ class WaitingRoomService {
             //  풀 인원이면 또는 최대 대기시간 넘으면 무조건 ㄱㄱ
             if (waitingPlayerIds.length >= waitingRoom.maxPlayerCount
                 || elapsedTime >= waitingRoom.maxWaitngTime) {
-
-                const roomCreateDto: CreateRoomDto = {
+                
+                //  create match
+                const createMatchDto: CreateMatchDto = {
                     matchType: waitingRoom.matchType,
                     subGameId: waitingRoom.subGameId,
                     mapId: waitingRoom.mapId,
                     targetRating: waitingRoom.targetRating,
-                    exptectedPlayerList: waitingPlayerIds
+                    playerList: waitingPlayerIds,
                 };
 
-                const createRoomResponseDto = await this.roomService.createRoom(roomCreateDto);
+                const match = await this.matchService.createMatch(createMatchDto);
+
+                const createRoomDto: CreateRoomDto = {
+                    matchId: match.id,
+                };
+
+                const createRoomResponseDto = await this.roomService.createRoom(createRoomDto);
                 if (createRoomResponseDto.code === ResponseCode.SUCCESS && createRoomResponseDto.room !== undefined) {
                     //  remove matchmakingTicketList
                     await this.matchmakingTicketService.deleteAllMatchmakingTicketsById(waitingRoom.matchmakingTicketList);
