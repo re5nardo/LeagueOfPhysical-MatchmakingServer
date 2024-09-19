@@ -26,6 +26,7 @@ export class ResponseCode {
 
     //#region Room
     public static readonly ROOM_NOT_EXIST = 50000;
+    public static readonly ROOM_NOT_JOINABLE = 50001;
     //#endregion
 
     public static readonly UNKNOWN_ERROR = 5000000;
