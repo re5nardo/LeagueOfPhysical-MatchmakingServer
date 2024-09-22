@@ -1,8 +1,15 @@
 
+export interface UserLocation {
+    id: string;
+    location: Location;
+    locationDetail: LocationDetail;
+    timestamp: number;
+}
+
 export enum Location {
-    Unknown = 0,
-    InWaitingRoom = 1,
-    InGameRoom = 2,
+    None = 0,
+    WaitingRoom = 1,
+    GameRoom = 2,
 }
 
 export class LocationDetail {
@@ -25,5 +32,12 @@ export class GameRoomLocationDetail extends LocationDetail {
 
 export class WaitingRoomLocationDetail extends LocationDetail {
     waitingRoomId: string;
-    matchmakingTicketId: string;        //  ?? 왜 있어야 되더라?
+    matchmakingTicketId: string;
+
+    public constructor(location: Location, waitingRoomId: string, matchmakingTicketId: string) {
+        super(location);
+
+        this.waitingRoomId = waitingRoomId;
+        this.matchmakingTicketId = matchmakingTicketId;
+    }
 }

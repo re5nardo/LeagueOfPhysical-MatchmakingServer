@@ -1,9 +1,7 @@
 
-import { HttpException } from '@exceptions/HttpException';
-import { isEmpty } from '@utils/util';
 import { CreateWaitingRoomDto } from '@dtos/waitingRoom.dto';
 import { CreateRoomDto } from '@dtos/room.dto';
-import { UpdateUserLocationDto, UserLocationDto } from '@dtos/user.dto';
+import { UpdateUserLocationDto, UserLocationDto } from '@dtos/user-location.dto';
 import { WaitingRoomRepository } from '@repositories/waitingRoom.repository';
 import { WaitingRoom } from '@interfaces/waitingRoom.interface';
 import MatchmakingTicketService from '@services/matchmakingTicket.service';
@@ -11,8 +9,8 @@ import { MasterData, MasterDataType } from '@loaders/masterdata.loader';
 import { ResponseCode } from '@interfaces/responseCode.interface';
 import { WaitingRoomUpdater } from '@src/updater/waitingRoomUpdater';
 import RoomService from '@services/room.service';
-import UserService from '@services/user.service';
-import { Location, GameRoomLocationDetail } from '@interfaces/user.location.interface';
+import UserLocationService from '@services/user-location.service';
+import { Location, GameRoomLocationDetail } from '@interfaces/user-location.interface';
 import { WaitingRoomMapper } from '@mappers/waitingRoom.mapper';
 import MatchService from '@services/match.service';
 import { CreateMatchDto } from '@src/dtos/match.dto';
@@ -22,7 +20,7 @@ class WaitingRoomService {
     private waitingRoomRepository = new WaitingRoomRepository();
     private matchmakingTicketService = new MatchmakingTicketService();
     private roomService = new RoomService();
-    private userService = new UserService();
+    private userLocationService = new UserLocationService();
     private matchService = new MatchService();
 
     public async leaveWaitingRoom(waitingRoomId: string, matchmakingTicketId: string): Promise</*MatchmakingTicketResponseDto*/boolean> {
@@ -263,18 +261,18 @@ class WaitingRoomService {
 
                     //  update user locations
                     const updateUserLocationDto = new UpdateUserLocationDto();
-                    const findAllUsersDto = await this.userService.findAllUsersById(waitingPlayerIds);
                     const roomId = createRoomResponseDto.room.id;
 
-                    findAllUsersDto.users?.forEach(user => {
-                        const userLocationDto = new UserLocationDto();
-                        userLocationDto.userId = user.id,
-                            userLocationDto.location = Location.InGameRoom,
-                            userLocationDto.locationDetail = new GameRoomLocationDetail(Location.InGameRoom, roomId);
+                    waitingPlayerIds.forEach(waitingPlayerId => {
+                        const userLocationDto: UserLocationDto = {
+                            userId: waitingPlayerId,
+                            location: Location.GameRoom,
+                            locationDetail: new GameRoomLocationDetail(Location.GameRoom, roomId),
+                        };
                         updateUserLocationDto.userLocations.push(userLocationDto);
                     });
 
-                    const response = await this.userService.updateUserLocation(updateUserLocationDto);
+                    const response = await this.userLocationService.updateUserLocation(updateUserLocationDto);
 
                     //remove waitingRoom
                     await this.waitingRoomRepository.deleteById(waitingRoom.id);

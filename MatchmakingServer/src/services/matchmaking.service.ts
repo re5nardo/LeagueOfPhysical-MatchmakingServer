@@ -4,16 +4,17 @@ import { MatchType } from '@interfaces/match.interface';
 import MatchmakingTicketService from '@services/matchmakingTicket.service';
 import WaitingRoomService from '@services/waitingRoom.service';
 import UserService from '@services/user.service';
-import { Location, WaitingRoomLocationDetail } from '@interfaces/user.location.interface';
-import { User } from '@interfaces/user.interface';
+import UserLocationService from '@services/user-location.service';
+import { Location, WaitingRoomLocationDetail } from '@interfaces/user-location.interface';
 import { ResponseCode } from '@interfaces/responseCode.interface';
-import { UpdateUserLocationDto } from '@dtos/user.dto';
+import { UpdateUserLocationDto } from '@dtos/user-location.dto';
 
 class MatchmakingService {
 
     private matchmakingTicketService: MatchmakingTicketService = new MatchmakingTicketService();
     private waitingRoomService: WaitingRoomService = new WaitingRoomService();
     private userService: UserService = new UserService();
+    private userLocationService: UserLocationService = new UserLocationService();
 
     public async requestMatchmaking(requestMatchmakingDto: RequestMatchmakingDto): Promise<RequestMatchmakingResponseDto> {
         try {
@@ -25,7 +26,7 @@ class MatchmakingService {
                 };
             }
 
-            if (this.validateToMatchmaking(user) !== true) {
+            if (await this.validateToMatchmaking(user.id) !== true) {
                 return {
                     code: ResponseCode.INVALID_TO_MATCH_MAKING,
                 };
@@ -50,7 +51,7 @@ class MatchmakingService {
 
                 //  update userMatchState
                 const waitingRoomLocationDetail: WaitingRoomLocationDetail = {
-                    location: Location.InWaitingRoom,
+                    location: Location.WaitingRoom,
                     waitingRoomId: waitingRoom.id,
                     matchmakingTicketId: matchmakingTicket.id
                 };
@@ -58,12 +59,12 @@ class MatchmakingService {
                 const updateUserLocationDto: UpdateUserLocationDto = {
                     userLocations: [{
                         userId: requestMatchmakingDto.userId,
-                        location: Location.InWaitingRoom,
+                        location: Location.WaitingRoom,
                         locationDetail: waitingRoomLocationDetail
                     }]
                 };
 
-                await this.userService.updateUserLocation(updateUserLocationDto);
+                await this.userLocationService.updateUserLocation(updateUserLocationDto);
 
                 return {
                     code: ResponseCode.SUCCESS,
@@ -77,14 +78,14 @@ class MatchmakingService {
                 const updateUserLocationDto: UpdateUserLocationDto = {
                     userLocations: [{
                         userId: requestMatchmakingDto.userId,
-                        location: Location.Unknown,
+                        location: Location.None,
                         locationDetail: {
-                            location: Location.Unknown,
+                            location: Location.None,
                         }
                     }]
                 };
 
-                await this.userService.updateUserLocation(updateUserLocationDto);
+                await this.userLocationService.updateUserLocation(updateUserLocationDto);
 
                 return {
                     code: ResponseCode.UNKNOWN_ERROR,
@@ -108,23 +109,31 @@ class MatchmakingService {
             const user = getUserResponseDto.user;
             if (!user) {
                 return {
-                    code: ResponseCode.USER_NOT_EXIST
+                    code: ResponseCode.USER_NOT_EXIST,
+                };
+            }
+
+            const userLocationDto = await this.userLocationService.getOrCreateUserLocationById(matchmakingTicket.creator);
+            const userLocation = userLocationDto.userLocation;
+            if (!userLocation) {
+                return {
+                    code: ResponseCode.USER_LOCATION_NOT_EXIST
                 };
             }
 
             //  check state (if already in game or inWaiting)
-            switch (+user.location) {
-                case Location.Unknown:
+            switch (+userLocation.location) {
+                case Location.None:
                     return {
                         code: ResponseCode.NOT_MATCH_MAKING_STATE
                     };
-                case Location.InGameRoom:
+                case Location.GameRoom:
                     return {
                         code: ResponseCode.ALREADY_IN_GAME
                     };
             }
 
-            const waitingRoomLocationDetail = user.locationDetail as WaitingRoomLocationDetail;
+            const waitingRoomLocationDetail = userLocation.locationDetail as WaitingRoomLocationDetail;
 
             const result = await this.waitingRoomService.leaveWaitingRoom(waitingRoomLocationDetail.waitingRoomId, waitingRoomLocationDetail.matchmakingTicketId);
             if (result === false) {
@@ -138,14 +147,14 @@ class MatchmakingService {
             const updateUserLocationDto: UpdateUserLocationDto = {
                 userLocations: [{
                     userId: user.id,
-                    location: Location.Unknown,
+                    location: Location.None,
                     locationDetail: {
-                        location: Location.Unknown,
+                        location: Location.None,
                     }
                 }]
             };
 
-            await this.userService.updateUserLocation(updateUserLocationDto);
+            await this.userLocationService.updateUserLocation(updateUserLocationDto);
 
             return {
                 code: ResponseCode.SUCCESS
@@ -155,11 +164,17 @@ class MatchmakingService {
         }
     }
 
-    private validateToMatchmaking(user: User): boolean {
+    private async validateToMatchmaking(userId: string): Promise<boolean> {
         try {
-            switch (+user.location) {
-                case Location.InWaitingRoom:
-                case Location.InGameRoom:
+            const userLocationDto = await this.userLocationService.getOrCreateUserLocationById(userId);
+            const userLocation = userLocationDto.userLocation;
+            if (!userLocation) {
+                return false;
+            }
+
+            switch (+userLocation.location) {
+                case Location.WaitingRoom:
+                case Location.GameRoom:
                     return false;
                 default:
                     return true;

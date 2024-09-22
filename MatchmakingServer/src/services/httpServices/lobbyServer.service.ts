@@ -1,7 +1,8 @@
 import axios from 'axios';
 import { LOBBY_SERVER_HOST, LOBBY_SERVER_PORT } from '@config';
 import HttpService from '@services/httpServices/httpService';
-import { UpdateUserLocationDto, UpdateUserLocationResponseDto, FindAllUsersResponseDto, GetUserResponseDto } from '@dtos/user.dto';
+import { FindAllUsersResponseDto, GetUserResponseDto } from '@dtos/user.dto';
+import { UpdateUserLocationDto, UpdateUserLocationResponseDto, GetUserLocationResponseDto }from '@dtos/user-location.dto';
 
 class LobbyServerService extends HttpService {
     constructor() {
@@ -35,11 +36,21 @@ class LobbyServerService extends HttpService {
             return Promise.reject(error);
         }
     }
-    
+
     public async updateUserLocation(updateUserLocationDto: UpdateUserLocationDto): Promise<UpdateUserLocationResponseDto> {
         try {
             const url = `http://${this.host}:${this.port}/user/location`;
             const response = await axios.put(url, updateUserLocationDto);
+            return response.data;
+        } catch (error) {
+            return Promise.reject(error);
+        }
+    }
+
+    public async getOrCreateUserLocationById(userId: string): Promise<GetUserLocationResponseDto> {
+        try {
+            const url = `http://${this.host}:${this.port}/user/${userId}/location`;
+            const response = await axios.get(url);
             return response.data;
         } catch (error) {
             return Promise.reject(error);
