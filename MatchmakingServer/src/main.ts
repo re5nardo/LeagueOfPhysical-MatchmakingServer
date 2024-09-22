@@ -1,3 +1,4 @@
+import 'reflect-metadata';
 import App from '@src/app';
 import IndexRoute from '@routes/index.route';
 import MatchmakingRoute from '@routes/matchmaking.route';
