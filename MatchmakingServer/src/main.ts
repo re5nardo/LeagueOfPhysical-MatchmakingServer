@@ -1,6 +1,7 @@
 import 'reflect-metadata';
 import App from '@src/app';
 import IndexRoute from '@routes/index.route';
+import MatchRoute from '@routes/match.route';
 import MatchmakingRoute from '@routes/matchmaking.route';
 import WaitingRoomRoute from '@routes/waitingRoom.route';
 import MatchmakingTicketRoute from '@routes/matchmakingTicket.route';
@@ -14,7 +15,7 @@ import loader from '@loaders/index';
 
         await loader();
 
-        const app = new App([new IndexRoute(), new MatchmakingRoute(), new WaitingRoomRoute(), new MatchmakingTicketRoute()]);
+        const app = new App([new IndexRoute(), new MatchRoute(), new MatchmakingRoute(), new WaitingRoomRoute(), new MatchmakingTicketRoute()]);
 
         app.listen();
     } catch (error) {

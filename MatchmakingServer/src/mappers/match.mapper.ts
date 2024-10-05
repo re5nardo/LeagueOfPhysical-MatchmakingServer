@@ -1,5 +1,5 @@
 import { Match } from "@interfaces/match.interface";
-import { CreateMatchDto } from "@dtos/match.dto";
+import { CreateMatchDto, MatchResponseDto } from "@dtos/match.dto";
 import { MatchFactory } from '@factories/match.factory';
 
 export class MatchMapper {
@@ -14,4 +14,15 @@ export class MatchMapper {
             });
         }
     };
+
+    public static toMatchResponseDto(match: Match): MatchResponseDto {
+        return {
+            id: match.id,
+            matchType: match.matchType,
+            subGameId: match.subGameId,
+            mapId: match.mapId,
+            targetRating: match.targetRating,
+            playerList: match.playerList,
+        };
+    }
 }

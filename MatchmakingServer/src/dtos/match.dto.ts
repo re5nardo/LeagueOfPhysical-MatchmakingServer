@@ -1,5 +1,6 @@
 import { IsNumber, IsString, IsEnum, IsArray } from 'class-validator';
 import { MatchType } from '@interfaces/match.interface';
+import { ResponseBase } from '@interfaces/responseBase.interface';
 
 export class CreateMatchDto {
     @IsEnum(MatchType)
@@ -17,4 +18,18 @@ export class CreateMatchDto {
     @IsArray()
     @IsString({ each: true })
     public playerList: string[];
+}
+
+export class MatchResponseDto {
+    public id: string;
+    public matchType: MatchType;
+    public subGameId: string;
+    public mapId: string;
+    public targetRating: number;
+    public playerList: string[];
+}
+
+export class GetMatchResponseDto implements ResponseBase {
+    public code: number;
+    public match?: MatchResponseDto;
 }
