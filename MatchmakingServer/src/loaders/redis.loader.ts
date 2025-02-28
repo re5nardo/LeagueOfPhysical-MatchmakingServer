@@ -1,9 +1,9 @@
 import { createClient, defineScript } from 'redis';
-import { cacheConnection } from '@caches/index';
+import { redisConnection } from '@caches/index';
 import * as fs from 'fs';
 
 export const redisClient = createClient({
-    url: cacheConnection.url,
+    url: redisConnection.url,
     scripts: {
         save: defineScript({
             NUMBER_OF_KEYS: 1,
