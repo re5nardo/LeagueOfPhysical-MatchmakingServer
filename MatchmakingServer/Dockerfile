@@ -1,4 +1,4 @@
-FROM node:16 as ts-compiler
+FROM node:22 as ts-compiler
 
 # 앱 디렉터리 생성
 WORKDIR /usr/src/match-server
@@ -14,6 +14,7 @@ COPY package*.json ./
 COPY tsconfig*.json ./
 
 RUN npm install
+RUN npx prisma generate
 # 프로덕션을 위한 코드를 빌드하는 경우
 # RUN npm ci --only=production
 
