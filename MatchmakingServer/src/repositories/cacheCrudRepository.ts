@@ -1,16 +1,12 @@
 import { CrudRepository } from '@repositories/crudRepository.interface';
 import { CrudDao } from '@daos/dao.interface';
 
-interface Entity<ID> {
-    id: ID;
-}
+export class CacheCrudRepository<T extends { id: any }> implements CrudRepository<T> {
 
-export class CacheCrudRepository<T extends Entity<ID>, ID> implements CrudRepository<T, ID> {
+    private dao: CrudDao<T>;
+    private cacheDao: CrudDao<T>;
 
-    private dao: CrudDao<T, ID>;
-    private cacheDao: CrudDao<T, ID>;
-
-    constructor(dao: CrudDao<T, ID>, cacheDao: CrudDao<T, ID>) {
+    constructor(dao: CrudDao<T>, cacheDao: CrudDao<T>) {
         this.dao = dao;
         this.cacheDao = cacheDao;
     }
@@ -43,7 +39,7 @@ export class CacheCrudRepository<T extends Entity<ID>, ID> implements CrudReposi
         }
     }
 
-    public async existsById(id: ID): Promise<boolean> {
+    public async existsById(id: T["id"]): Promise<boolean> {
         try {
             return await this.dao.existsById(id);
         } catch (error) {
@@ -51,7 +47,7 @@ export class CacheCrudRepository<T extends Entity<ID>, ID> implements CrudReposi
         }
     }
 
-    public async findById(id: ID): Promise<T | undefined | null> {
+    public async findById(id: T["id"]): Promise<T | undefined | null> {
         try {
             if (await this.cacheDao.existsById(id)) {
                 return await this.cacheDao.findById(id);
@@ -77,7 +73,7 @@ export class CacheCrudRepository<T extends Entity<ID>, ID> implements CrudReposi
         }
     }
 
-    public async findAllById(ids: Iterable<ID>): Promise<Iterable<T>> {
+    public async findAllById(ids: Iterable<T["id"]>): Promise<Iterable<T>> {
         try {
             const cachedEntities = await this.cacheDao.findAllById(ids);
             const idsToGet = new Set(ids);
@@ -104,7 +100,7 @@ export class CacheCrudRepository<T extends Entity<ID>, ID> implements CrudReposi
         }
     }
 
-    public async deleteById(id: ID): Promise<void> {
+    public async deleteById(id: T["id"]): Promise<void> {
         try {
             await this.cacheDao.deleteById(id);
             await this.dao.deleteById(id);
@@ -127,10 +123,27 @@ export class CacheCrudRepository<T extends Entity<ID>, ID> implements CrudReposi
         }
     }
 
-    public async deleteAllById(ids: Iterable<ID>): Promise<void> {
+    public async deleteAllById(ids: Iterable<T["id"]>): Promise<void> {
         try {
             await this.cacheDao.deleteAllById(ids);
             await this.dao.deleteAllById(ids);
+        } catch (error) {
+            return Promise.reject(error);
+        }
+    }
+    
+    public async findByField<K extends keyof T>(field: K, value: T[K]): Promise<T | undefined | null> {
+        try {
+            const cachedEntity = await this.cacheDao.findByField(field, value);
+            if (cachedEntity) {
+                return cachedEntity;
+            } else {
+                const entity = await this.dao.findByField(field, value);
+                if (entity) {
+                    await this.cacheDao.save(entity);
+                }
+                return entity;
+            }
         } catch (error) {
             return Promise.reject(error);
         }

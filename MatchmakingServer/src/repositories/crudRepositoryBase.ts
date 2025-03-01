@@ -1,11 +1,11 @@
 import { CrudRepository } from '@repositories/crudRepository.interface';
 import { CrudDao } from '@daos/dao.interface';
 
-export class CrudRepositoryBase<T, ID> implements CrudRepository<T, ID> {
+export class CrudRepositoryBase<T extends { id: any }> implements CrudRepository<T> {
 
-    protected dao: CrudDao<T, ID>;
+    protected dao: CrudDao<T>;
 
-    constructor(dao: CrudDao<T, ID>) {
+    constructor(dao: CrudDao<T>) {
         this.dao = dao;
     }
 
@@ -35,7 +35,7 @@ export class CrudRepositoryBase<T, ID> implements CrudRepository<T, ID> {
         }
     }
 
-    public async existsById(id: ID): Promise<boolean> {
+    public async existsById(id: T["id"]): Promise<boolean> {
         try {
             return await this.dao.existsById(id);
         } catch (error) {
@@ -43,7 +43,7 @@ export class CrudRepositoryBase<T, ID> implements CrudRepository<T, ID> {
         }
     }
 
-    public async findById(id: ID): Promise<T | undefined | null> {
+    public async findById(id: T["id"]): Promise<T | undefined | null> {
         try {
             return await this.dao.findById(id);
         } catch (error) {
@@ -59,7 +59,7 @@ export class CrudRepositoryBase<T, ID> implements CrudRepository<T, ID> {
         }
     }
 
-    public async findAllById(ids: Iterable<ID>): Promise<Iterable<T>> {
+    public async findAllById(ids: Iterable<T["id"]>): Promise<Iterable<T>> {
         try {
             return await this.dao.findAllById(ids);
         } catch (error) {
@@ -76,7 +76,7 @@ export class CrudRepositoryBase<T, ID> implements CrudRepository<T, ID> {
         }
     }
 
-    public async deleteById(id: ID): Promise<void> {
+    public async deleteById(id: T["id"]): Promise<void> {
         try {
             await this.dao.deleteById(id);
         } catch (error) {
@@ -96,9 +96,17 @@ export class CrudRepositoryBase<T, ID> implements CrudRepository<T, ID> {
         }
     }
 
-    public async deleteAllById(ids: Iterable<ID>): Promise<void> {
+    public async deleteAllById(ids: Iterable<T["id"]>): Promise<void> {
         try {
             await this.dao.deleteAllById(ids);
+        } catch (error) {
+            return Promise.reject(error);
+        }
+    }
+
+    public async findByField<K extends keyof T>(field: K, value: T[K]): Promise<T | undefined | null> {
+        try {
+            return await this.dao.findByField(field, value);
         } catch (error) {
             return Promise.reject(error);
         }

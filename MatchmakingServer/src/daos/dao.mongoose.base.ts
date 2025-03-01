@@ -1,12 +1,8 @@
-import { Model } from 'mongoose';
+import { Model, FilterQuery } from 'mongoose';
 import { CrudDao } from '@daos/dao.interface';
 import { AnyBulkWriteOperation } from 'mongodb';
 
-interface Entity {
-    id: string;
-}
-
-export abstract class DaoMongooseBase<T extends Entity> implements CrudDao<T, string> {
+export abstract class DaoMongooseBase<T extends { id: any }> implements CrudDao<T> {
 
     abstract get mongooseModel(): Model<T>;
 
@@ -46,7 +42,7 @@ export abstract class DaoMongooseBase<T extends Entity> implements CrudDao<T, st
         }
     }
 
-    public async existsById(id: string): Promise<boolean> {
+    public async existsById(id: T["id"]): Promise<boolean> {
         try {
             return await this.mongooseModel.exists({ id: id }) !== null;
         } catch (error) {
@@ -54,7 +50,7 @@ export abstract class DaoMongooseBase<T extends Entity> implements CrudDao<T, st
         }
     }
 
-    public async findById(id: string): Promise<T | undefined | null> {
+    public async findById(id: T["id"]): Promise<T | undefined | null> {
         try {
             return await this.mongooseModel.findOne({ id: id }).lean();
         } catch (error) {
@@ -70,7 +66,7 @@ export abstract class DaoMongooseBase<T extends Entity> implements CrudDao<T, st
         }
     }
 
-    public async findAllById(ids: Iterable<string>): Promise<Iterable<T>> {
+    public async findAllById(ids: Iterable<T["id"]>): Promise<Iterable<T>> {
         try {
             return await this.mongooseModel.find({ id: { $in: ids } }).lean();
         } catch (error) {
@@ -87,7 +83,7 @@ export abstract class DaoMongooseBase<T extends Entity> implements CrudDao<T, st
         }
     }
 
-    public async deleteById(id: string): Promise<void> {
+    public async deleteById(id: T["id"]): Promise<void> {
         try {
             await this.mongooseModel.deleteOne({ id: id });
         } catch (error) {
@@ -98,7 +94,7 @@ export abstract class DaoMongooseBase<T extends Entity> implements CrudDao<T, st
     public async deleteAll(entities?: Iterable<T>): Promise<void> {
         try {
             if (entities) {
-                const ids = Array.from(entities).map<string>(entity => entity.id);
+                const ids = Array.from(entities).map<T["id"]>(entity => entity.id);
                 await this.deleteAllById(ids);
             } else {
                 await this.mongooseModel.deleteMany({});
@@ -108,9 +104,18 @@ export abstract class DaoMongooseBase<T extends Entity> implements CrudDao<T, st
         }
     }
 
-    public async deleteAllById(ids: Iterable<string>): Promise<void> {
+    public async deleteAllById(ids: Iterable<T["id"]>): Promise<void> {
         try {
             await this.mongooseModel.deleteMany({ id: { $in: ids } });
+        } catch (error) {
+            return Promise.reject(error);
+        }
+    }
+
+    public async findByField<K extends keyof T>(field: K, value: T[K]): Promise<T | undefined | null> {
+        try {
+            const filter = { [field]: value } as unknown as FilterQuery<T>;
+            return await this.mongooseModel.findOne(filter).lean();
         } catch (error) {
             return Promise.reject(error);
         }

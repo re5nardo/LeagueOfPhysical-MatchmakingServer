@@ -1,17 +1,13 @@
 import { redisClient } from '@loaders/redis.loader';
 import { CrudDao } from '@daos/dao.interface';
 
-interface Entity {
-    id: string;
-}
-
-export abstract class DaoRedisBase<T extends Entity> implements CrudDao<T, string> {
+export abstract class DaoRedisBase<T extends { id: any }> implements CrudDao<T> {
 
     abstract get Prefix(): string;
     abstract get TTL(): number;
 
-    GetRedisKey(entity: Entity): string;
-    GetRedisKey(id: string): string;
+    GetRedisKey(entity: T): string;
+    GetRedisKey(id: T["id"]): string;
     GetRedisKey(x: any): string {
         return typeof x === 'string' ? `${this.Prefix}_${x}` : `${this.Prefix}_${x.id}`
     }
@@ -47,7 +43,7 @@ export abstract class DaoRedisBase<T extends Entity> implements CrudDao<T, strin
         }
     }
 
-    public async existsById(id: string): Promise<boolean> {
+    public async existsById(id: T["id"]): Promise<boolean> {
         try {
             return await redisClient.exists(this.GetRedisKey(id)) === 1;
         } catch (error) {
@@ -55,7 +51,7 @@ export abstract class DaoRedisBase<T extends Entity> implements CrudDao<T, strin
         }
     }
 
-    public async findById(id: string): Promise<T | undefined | null> {
+    public async findById(id: T["id"]): Promise<T | undefined | null> {
         try {
             //  getEx not working.., use multi instead.
             const multi = redisClient.multi();
@@ -89,7 +85,7 @@ export abstract class DaoRedisBase<T extends Entity> implements CrudDao<T, strin
         }
     }
 
-    public async findAllById(ids: Iterable<string>): Promise<Iterable<T>> {
+    public async findAllById(ids: Iterable<T["id"]>): Promise<Iterable<T>> {
         try {
             const keys = Array.from(ids).map<string>(id => this.GetRedisKey(id));
             const values = await redisClient.mGet(keys) as string[];
@@ -121,7 +117,7 @@ export abstract class DaoRedisBase<T extends Entity> implements CrudDao<T, strin
         }
     }
 
-    public async deleteById(id: string): Promise<void> {
+    public async deleteById(id: T["id"]): Promise<void> {
         try {
             await redisClient.del(this.GetRedisKey(id));
         } catch (error) {
@@ -132,7 +128,7 @@ export abstract class DaoRedisBase<T extends Entity> implements CrudDao<T, strin
     public async deleteAll(entities?: Iterable<T>): Promise<void> {
         try {
             if (entities) {
-                const ids = Array.from(entities).map<string>(entity => entity.id);
+                const ids = Array.from(entities).map<T["id"]>(entity => entity.id);
                 await this.deleteAllById(ids);
             } else {
                 await redisClient.deleteAll(`${this.Prefix}*`);
@@ -142,10 +138,21 @@ export abstract class DaoRedisBase<T extends Entity> implements CrudDao<T, strin
         }
     }
 
-    public async deleteAllById(ids: Iterable<string>): Promise<void> {
+    public async deleteAllById(ids: Iterable<T["id"]>): Promise<void> {
         try {
             const keys = Array.from(ids).map<string>(id => this.GetRedisKey(id));
             await redisClient.del(keys);
+        } catch (error) {
+            return Promise.reject(error);
+        }
+    }
+
+    //  성능이... 매우 나쁨.. 고민 필요..
+    public async findByField<K extends keyof T>(field: K, value: T[K]): Promise<T | undefined | null> {
+        try {
+            const entities = await this.findAll();
+            const entity = Array.from(entities).find(entity => entity[field] === value);
+            return entity;
         } catch (error) {
             return Promise.reject(error);
         }
