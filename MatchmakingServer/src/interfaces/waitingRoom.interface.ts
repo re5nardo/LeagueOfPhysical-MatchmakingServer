@@ -12,7 +12,7 @@ export interface WaitingRoom {
     targetRating: number;
     createdAt: number;
     matchmakingTicketList: string[];
-    maxWaitngTime: number;
+    maxWaitingTime: number;
     minPlayerCount: number;
     maxPlayerCount: number;
     status: WaitingRoomStatus;

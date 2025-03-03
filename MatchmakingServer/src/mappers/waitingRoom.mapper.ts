@@ -10,7 +10,7 @@ export class WaitingRoomMapper {
                 subGameId: createWaitingRoomDto.subGameId,
                 mapId: createWaitingRoomDto.mapId,
                 targetRating: createWaitingRoomDto.targetRating,
-                maxWaitngTime: createWaitingRoomDto.maxWaitngTime,
+                maxWaitingTime: createWaitingRoomDto.maxWaitingTime,
                 minPlayerCount: createWaitingRoomDto.minPlayerCount,
                 maxPlayerCount: createWaitingRoomDto.maxPlayerCount
             });
@@ -25,7 +25,7 @@ export class WaitingRoomMapper {
             mapId: waitingRoom.mapId,
             targetRating: waitingRoom.targetRating,
             matchmakingTicketList: waitingRoom.matchmakingTicketList,
-            maxWaitngTime: waitingRoom.maxWaitngTime,
+            maxWaitingTime: waitingRoom.maxWaitingTime,
             minPlayerCount: waitingRoom.minPlayerCount,
             maxPlayerCount: waitingRoom.maxPlayerCount,
             status: waitingRoom.status

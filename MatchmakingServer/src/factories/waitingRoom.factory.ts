@@ -16,7 +16,7 @@ export class WaitingRoomFactory {
             targetRating: 1000,
             createdAt: Date.now(),
             matchmakingTicketList: [],
-            maxWaitngTime: 500,
+            maxWaitingTime: 500,
             minPlayerCount: 2,
             maxPlayerCount: 8,
             status: WaitingRoomStatus.None,

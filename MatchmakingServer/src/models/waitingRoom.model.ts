@@ -17,7 +17,7 @@ const waitingRoomSchema: Schema = new Schema({
     targetRating: Number,
     createdAt: Number,
     matchmakingTicketList: [String],
-    maxWaitngTime: Number,
+    maxWaitingTime: Number,
     minPlayerCount: Number,
     maxPlayerCount: Number,
     status: {

@@ -237,7 +237,7 @@ class WaitingRoomService {
 
             //  풀 인원이면 또는 최대 대기시간 넘으면 무조건 ㄱㄱ
             if (waitingPlayerIds.length >= waitingRoom.maxPlayerCount
-                || elapsedTime >= waitingRoom.maxWaitngTime) {
+                || elapsedTime >= waitingRoom.maxWaitingTime) {
                 
                 //  create match
                 const createMatchDto: CreateMatchDto = {

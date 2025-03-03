@@ -17,7 +17,7 @@ export class CreateWaitingRoomDto {
     public targetRating: number;
 
     @IsNumber()
-    public maxWaitngTime: number;
+    public maxWaitingTime: number;
 
     @IsNumber()
     public minPlayerCount: number;
@@ -25,12 +25,12 @@ export class CreateWaitingRoomDto {
     @IsNumber()
     public maxPlayerCount: number;
 
-    public constructor(matchType: MatchType, subGameId: string, mapId: string, targetRating: number, maxWaitngTime: number, minPlayerCount: number, maxPlayerCount: number) {
+    public constructor(matchType: MatchType, subGameId: string, mapId: string, targetRating: number, maxWaitingTime: number, minPlayerCount: number, maxPlayerCount: number) {
         this.matchType = matchType;
         this.subGameId = subGameId;
         this.mapId = mapId;
         this.targetRating = targetRating;
-        this.maxWaitngTime = maxWaitngTime;
+        this.maxWaitingTime = maxWaitingTime;
         this.minPlayerCount = minPlayerCount;
         this.maxPlayerCount = maxPlayerCount;
     }
@@ -43,7 +43,7 @@ export class WaitingRoomResponseDto {
     public mapId: string;
     public targetRating: number;
     public matchmakingTicketList: string[];
-    public maxWaitngTime: number;
+    public maxWaitingTime: number;
     public minPlayerCount: number;
     public maxPlayerCount: number;
     public status: WaitingRoomStatus;
