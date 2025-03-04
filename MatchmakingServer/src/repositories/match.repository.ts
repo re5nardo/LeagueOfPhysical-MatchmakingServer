@@ -1,9 +1,9 @@
 import { Match } from '@interfaces/match.interface';
 import { CrudRepositoryBase } from '@repositories/crudRepositoryBase';
-import { MatchDaoMongoose } from '@daos/match.dao.mongoose';
+import { MatchDaoPostgres } from '@daos/match.dao.postgres';
 
 export class MatchRepository extends CrudRepositoryBase<Match> {
     constructor() {
-        super(new MatchDaoMongoose());
+        super(new MatchDaoPostgres());
     }
 }
