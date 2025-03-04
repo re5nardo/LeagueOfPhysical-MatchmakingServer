@@ -2,13 +2,13 @@ import { PrismaClient, Prisma } from "@prisma/client";
 import { CrudDao } from '@daos/dao.interface';
 
 type PrismaModel<T extends { id: any }> = {
-    upsert: (args: { where: { id: T["id"] }; update: Partial<T>; create: T; }) => Prisma.PrismaPromise<T>;
+    upsert: (args: { where: { id: T["id"] }; update: any; create: any; }) => Prisma.PrismaPromise<T>;
     findUnique: (args: { where: { id: T["id"] }; }) => Prisma.PrismaPromise<T | null>;
-    findFirst: (args: { where: Partial<T>; }) => Prisma.PrismaPromise<T | null>;
-    findMany: (args?: { where?: { id?: { in: T["id"][] } }; }) => Prisma.PrismaPromise<T[]>;
-    count: (args?: { where?: Partial<T>; }) => Prisma.PrismaPromise<number>;
+    findFirst: (args: { where: any; }) => Prisma.PrismaPromise<T | null>;
+    findMany: (args?: { where?: any; }) => Prisma.PrismaPromise<T[]>;
+    count: (args?: { where?: any; }) => Prisma.PrismaPromise<number>;
     delete: (args: { where: { id: T["id"] }; }) => Prisma.PrismaPromise<T>;
-    deleteMany: (args?: { where?: { id?: { in: T["id"][] } }; }) => Prisma.PrismaPromise<Prisma.BatchPayload>;
+    deleteMany: (args?: { where?: any; }) => Prisma.PrismaPromise<Prisma.BatchPayload>;
 };
 
 export abstract class DaoPostgresBase<T extends { id: any }, M extends PrismaModel<T>> implements CrudDao<T> {
