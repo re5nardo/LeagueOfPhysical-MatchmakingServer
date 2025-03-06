@@ -2,12 +2,12 @@ import { PrismaClient, Prisma } from "@prisma/client";
 import { CrudDao } from '@daos/dao.interface';
 
 type PrismaModel<T extends { id: any }> = {
-    upsert: (args: { where: { id: T["id"] }; update: any; create: any; }) => Prisma.PrismaPromise<T>;
-    findUnique: (args: { where: { id: T["id"] }; }) => Prisma.PrismaPromise<T | null>;
-    findFirst: (args: { where: any; }) => Prisma.PrismaPromise<T | null>;
-    findMany: (args?: { where?: any; }) => Prisma.PrismaPromise<T[]>;
+    upsert: (args: { where: { id: T["id"] }; update: any; create: any; }) => Prisma.PrismaPromise<any>;
+    findUnique: (args: { where: { id: T["id"] }; }) => Prisma.PrismaPromise<any>;
+    findFirst: (args: { where: any; }) => Prisma.PrismaPromise<any>;
+    findMany: (args?: { where?: any; }) => Prisma.PrismaPromise<any[]>;
     count: (args?: { where?: any; }) => Prisma.PrismaPromise<number>;
-    delete: (args: { where: { id: T["id"] }; }) => Prisma.PrismaPromise<T>;
+    delete: (args: { where: { id: T["id"] }; }) => Prisma.PrismaPromise<any>;
     deleteMany: (args?: { where?: any; }) => Prisma.PrismaPromise<Prisma.BatchPayload>;
 };
 

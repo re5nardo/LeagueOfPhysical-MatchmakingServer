@@ -20,7 +20,7 @@ enum MatchType {
 
 model Match {
   id           String     @id @unique
-  matchType    Int
+  matchType    MatchType
   subGameId    String
   mapId        String
   targetRating Int
@@ -31,7 +31,7 @@ model Match {
 model MatchmakingTicket {
   id         String     @id @unique
   creator    String
-  matchType  Int
+  matchType  MatchType
   subGameId  String
   mapId      String
   rating     Int
@@ -44,7 +44,7 @@ enum WaitingRoomStatus {
 
 model WaitingRoom {
   id                     String             @id @unique
-  matchType              Int
+  matchType              MatchType
   subGameId              String
   mapId                  String
   targetRating           Int
@@ -53,5 +53,5 @@ model WaitingRoom {
   maxWaitingTime         Int
   minPlayerCount         Int
   maxPlayerCount         Int
-  status                 Int
+  status                 WaitingRoomStatus
 }
