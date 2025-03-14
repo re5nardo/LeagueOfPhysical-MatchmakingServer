@@ -1,24 +1,24 @@
 import { Repository } from '@repositories/repository.interface';
 
 //  https://docs.spring.io/spring-data/commons/docs/current/api/org/springframework/data/repository/CrudRepository.html 참고
-export interface CrudRepository<T extends { id: any }> extends Repository<T> {
+export interface CrudRepository<TDomain extends { id: any }, TEntity extends { id: any }> extends Repository<TDomain, TEntity> {
     //  Create & Update
-    save(entity: T): Promise<T>;
-    saveAll(entities: Iterable<T>): Promise<void>;
+    save(domain: TDomain): Promise<TDomain>;
+    saveAll(domains: Iterable<TDomain>): Promise<void>;
 
     //  Read
     count(): Promise<number>;
-    existsById(id: T["id"]): Promise<boolean>;
-    findById(id: T["id"]): Promise<T | undefined | null>;
-    findAll(): Promise<Iterable<T>>;
-    findAllById(ids: Iterable<T["id"]>): Promise<Iterable<T>>;
+    existsById(id: TDomain["id"]): Promise<boolean>;
+    findById(id: TDomain["id"]): Promise<TDomain | undefined | null>;
+    findAll(): Promise<Iterable<TDomain>>;
+    findAllById(ids: Iterable<TDomain["id"]>): Promise<Iterable<TDomain>>;
 
     //  Delete
-    delete(entity: T): Promise<void>;
-    deleteById(id: T["id"]): Promise<void>;
+    delete(domain: TDomain): Promise<void>;
+    deleteById(id: TDomain["id"]): Promise<void>;
     deleteAll(): Promise<void>;
-    deleteAll(entities: Iterable<T>): Promise<void>;
-    deleteAllById(ids: Iterable<T["id"]>): Promise<void>;
+    deleteAll(domains: Iterable<TDomain>): Promise<void>;
+    deleteAllById(ids: Iterable<TDomain["id"]>): Promise<void>;
 
-    findByField<K extends keyof T>(field: K, value: T[K]): Promise<T | undefined | null>;
+    findByField<K extends keyof TDomain>(field: K, value: TDomain[K]): Promise<TDomain | undefined | null>;
 }
