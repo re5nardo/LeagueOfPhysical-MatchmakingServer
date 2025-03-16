@@ -1,6 +1,6 @@
-import { Match } from "@interfaces/match.interface";
-import { CreateMatchDto, MatchResponseDto } from "@dtos/match.dto";
+import { Match } from '@interfaces/match.interface';
 import { MatchFactory } from '@factories/match.factory';
+import { CreateMatchDto, MatchResponseDto } from '@dtos/match.dto';
 
 export class MatchMapper {
     static CreateMatchDto = class {

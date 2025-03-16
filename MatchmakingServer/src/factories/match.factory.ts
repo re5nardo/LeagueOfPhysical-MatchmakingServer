@@ -13,7 +13,7 @@ export class MatchFactory {
             subGameId: '',
             mapId: '',
             targetRating: 1000,
-            createdAt: Date.now(),
+            createdAt: new Date(),
             playerList: [],
         };
     }

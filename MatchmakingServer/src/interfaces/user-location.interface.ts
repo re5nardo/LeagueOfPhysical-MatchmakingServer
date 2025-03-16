@@ -3,7 +3,7 @@ export interface UserLocation {
     id: string;
     location: Location;
     locationDetail: LocationDetail;
-    timestamp: number;
+    timestamp: Date;
 }
 
 export enum Location {

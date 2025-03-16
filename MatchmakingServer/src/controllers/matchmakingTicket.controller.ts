@@ -2,7 +2,7 @@ import { NextFunction, Request, Response } from 'express';
 import MatchmakingTicketService from '@services/matchmakingTicket.service';
 import { GetMatchmakingTicketResponseDto } from '@dtos/matchmakingTicket.dto';
 import { ResponseCode } from '@interfaces/responseCode.interface';
-import { MatchmakingTicketMapper } from '@mappers/matchmakingTicket.mapper';
+import { MatchmakingTicketMapper } from '@mappers/controllers/matchmakingTicket.mapper';
 
 class MatchmakingTicketController {
     private matchmakingTicketService = new MatchmakingTicketService();

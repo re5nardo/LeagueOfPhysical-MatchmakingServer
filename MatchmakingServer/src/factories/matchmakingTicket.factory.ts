@@ -15,7 +15,7 @@ export class MatchmakingTicketFactory {
             subGameId: '',
             mapId: '',
             rating: 1000,
-            createdAt: Date.now(),
+            createdAt: new Date(),
         };
     }
 }

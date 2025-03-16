@@ -16,7 +16,10 @@ const matchmakingTicketSchema: Schema = new Schema({
     subGameId: String,
     mapId: String,
     rating: Number,
-    createdAt: Number,
+    createdAt: {
+        type: Date,
+        default: Date.now,
+    },
 });
 
 const matchmakingTicketModel = model<MatchmakingTicket & Document>('MatchmakingTicket', matchmakingTicketSchema);

@@ -1,6 +1,6 @@
-import { MatchmakingTicket } from "@interfaces/matchmakingTicket.interface";
-import { CreateMatchmakingTicketDto, MatchmakingTicketResponseDto } from "@dtos/matchmakingTicket.dto";
+import { CreateMatchmakingTicketDto, MatchmakingTicketResponseDto } from '@dtos/matchmakingTicket.dto';
 import { MatchmakingTicketFactory } from '@factories/matchmakingTicket.factory';
+import { MatchmakingTicket } from '@interfaces/matchmakingTicket.interface';
 
 export class MatchmakingTicketMapper {
     static CreateMatchmakingTicketDto = class {

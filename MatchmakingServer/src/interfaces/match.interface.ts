@@ -10,6 +10,6 @@ export interface Match {
     subGameId: string;
     mapId: string;
     targetRating: number;
-    createdAt: number;
+    createdAt: Date;
     playerList: string[];
 };

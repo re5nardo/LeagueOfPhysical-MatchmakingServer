@@ -2,7 +2,7 @@ import { NextFunction, Request, Response } from 'express';
 import { GetWaitingRoomResponseDto } from '@dtos/waitingRoom.dto';
 import WaitingRoomService from '@services/waitingRoom.service';
 import { ResponseCode } from '@interfaces/responseCode.interface';
-import { WaitingRoomMapper } from '@mappers/waitingRoom.mapper';
+import { WaitingRoomMapper } from '@mappers/controllers/waitingRoom.mapper';
 
 class WaitingRoomController {
     private waitingRoomService = new WaitingRoomService();

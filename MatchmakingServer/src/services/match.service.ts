@@ -2,7 +2,7 @@
 import { MatchRepository } from '@repositories/match.repository';
 import { Match } from '@interfaces/match.interface'
 import { CreateMatchDto, GetMatchResponseDto } from '@dtos/match.dto';
-import { MatchMapper } from '@mappers/match.mapper'
+import { MatchMapper } from '@mappers/controllers/match.mapper'
 import { ResponseCode } from '@interfaces/responseCode.interface';
 
 class MatchService {

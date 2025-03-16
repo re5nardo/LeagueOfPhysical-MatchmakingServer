@@ -7,5 +7,5 @@ export interface MatchmakingTicket {
     subGameId: string;
     mapId: string;
     rating: number;
-    createdAt: number;
+    createdAt: Date;
 }

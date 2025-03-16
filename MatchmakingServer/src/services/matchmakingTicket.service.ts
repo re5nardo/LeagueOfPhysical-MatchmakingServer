@@ -5,7 +5,7 @@ import { isEmpty } from '@utils/util';
 import { MatchmakingTicketRepository } from '@repositories/matchmakingTicket.repository';
 import { MatchType } from '@interfaces/match.interface';
 import { MatchmakingTicketFactory } from '@factories/matchmakingTicket.factory';
-import { MatchmakingTicketMapper } from '@mappers/matchmakingTicket.mapper';
+import { MatchmakingTicketMapper } from '@mappers/controllers/matchmakingTicket.mapper';
 
 class MatchmakingTicketService {
     

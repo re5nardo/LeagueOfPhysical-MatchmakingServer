@@ -14,7 +14,7 @@ export class WaitingRoomFactory {
             subGameId: '',
             mapId: '',
             targetRating: 1000,
-            createdAt: Date.now(),
+            createdAt: new Date(),
             matchmakingTicketList: [],
             maxWaitingTime: 500,
             minPlayerCount: 2,

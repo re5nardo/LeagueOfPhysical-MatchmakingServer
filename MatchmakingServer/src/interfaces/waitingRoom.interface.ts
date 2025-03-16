@@ -10,7 +10,7 @@ export interface WaitingRoom {
     subGameId: string;
     mapId: string;
     targetRating: number;
-    createdAt: number;
+    createdAt: Date;
     matchmakingTicketList: string[];
     maxWaitingTime: number;
     minPlayerCount: number;

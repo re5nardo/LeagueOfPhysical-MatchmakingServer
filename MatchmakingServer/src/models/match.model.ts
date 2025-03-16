@@ -14,7 +14,10 @@ const matchSchema: Schema = new Schema({
     subGameId: String,
     mapId: String,
     targetRating: Number,
-    createdAt: Number,
+    createdAt: {
+        type: Date,
+        default: Date.now,
+    },
     playerList: [String],
 });
 

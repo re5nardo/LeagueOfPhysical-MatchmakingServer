@@ -24,7 +24,7 @@ model Match {
   subGameId    String
   mapId        String
   targetRating Int
-  createdAt    Int
+  createdAt    DateTime   @default(now())
   playerList   String[]
 }
 
@@ -35,7 +35,7 @@ model MatchmakingTicket {
   subGameId  String
   mapId      String
   rating     Int
-  createdAt  Int
+  createdAt  DateTime   @default(now())
 }
 
 enum WaitingRoomStatus {
@@ -48,7 +48,7 @@ model WaitingRoom {
   subGameId              String
   mapId                  String
   targetRating           Int
-  createdAt              Int
+  createdAt              DateTime           @default(now())
   matchmakingTicketList  String[]
   maxWaitingTime         Int
   minPlayerCount         Int

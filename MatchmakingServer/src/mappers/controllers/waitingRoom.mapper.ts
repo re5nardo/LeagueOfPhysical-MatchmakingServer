@@ -1,5 +1,5 @@
-import { WaitingRoom } from "@interfaces/waitingRoom.interface";
-import { CreateWaitingRoomDto, WaitingRoomResponseDto } from "@dtos/waitingRoom.dto";
+import { WaitingRoom } from '@interfaces/waitingRoom.interface';
+import { CreateWaitingRoomDto, WaitingRoomResponseDto } from '@dtos/waitingRoom.dto';
 import { WaitingRoomFactory } from '@factories/waitingRoom.factory';
 
 export class WaitingRoomMapper {

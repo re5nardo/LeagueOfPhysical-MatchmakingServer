@@ -1,6 +1,6 @@
 import { CrudRepository } from '@repositories/crudRepository.interface';
 import { CrudDao } from '@daos/dao.interface';
-import { DomainEntityMapper } from '@mappers/domain-entity-mapper'
+import { DomainEntityMapper } from '@mappers/domain.entity.mapper'
 
 export class CacheCrudRepository<TDomain extends { id: any }, TEntity extends { id: any }> implements CrudRepository<TDomain, TEntity> {
 

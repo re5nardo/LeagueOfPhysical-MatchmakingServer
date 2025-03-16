@@ -11,7 +11,7 @@ import { WaitingRoomUpdater } from '@src/updater/waitingRoomUpdater';
 import RoomService from '@services/room.service';
 import UserLocationService from '@services/user-location.service';
 import { Location, GameRoomLocationDetail } from '@interfaces/user-location.interface';
-import { WaitingRoomMapper } from '@mappers/waitingRoom.mapper';
+import { WaitingRoomMapper } from '@mappers/controllers/waitingRoom.mapper';
 import MatchService from '@services/match.service';
 import { CreateMatchDto } from '@src/dtos/match.dto';
 
@@ -233,7 +233,7 @@ class WaitingRoomService {
                 return true;
             }
 
-            const elapsedTime = (Date.now() - waitingRoom.createdAt) / 1000;
+            const elapsedTime = (Date.now() - waitingRoom.createdAt.getTime()) / 1000;
 
             //  풀 인원이면 또는 최대 대기시간 넘으면 무조건 ㄱㄱ
             if (waitingPlayerIds.length >= waitingRoom.maxPlayerCount
