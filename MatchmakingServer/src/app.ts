@@ -21,6 +21,7 @@ class App {
         this.initializeMiddlewares();
         this.initializeRoutes(routes);
         this.initializeErrorHandling();
+        this.initializeProcessErrorHandling();
     }
 
     public listen() {
@@ -49,6 +50,24 @@ class App {
 
     private initializeErrorHandling() {
         this.app.use(errorMiddleware);
+    }
+
+    private initializeProcessErrorHandling() {
+        process.on('uncaughtException', (err: Error) => {
+            logger.error(`uncaughtException: ${err.stack || err.message}`);
+        });
+        
+        process.on('unhandledRejection', (reason: unknown) => {
+            let errorMessage: string;
+            
+            if (reason instanceof Error) {
+                errorMessage = reason.stack || reason.message;
+            } else {
+                errorMessage = String(reason);
+            }
+            
+            logger.error(`unhandledRejection: ${errorMessage}`);
+        });
     }
 }
 
