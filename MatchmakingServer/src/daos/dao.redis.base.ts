@@ -1,5 +1,6 @@
 import { redisClient } from '@loaders/redis.loader';
 import { CrudDao } from '@daos/dao.interface';
+import { parseWithDates } from '@utils/redis-json.utils';
 
 export abstract class DaoRedisBase<T extends { id: any }> implements CrudDao<T> {
 
@@ -10,6 +11,10 @@ export abstract class DaoRedisBase<T extends { id: any }> implements CrudDao<T> 
     GetRedisKey(id: T["id"]): string;
     GetRedisKey(x: any): string {
         return typeof x === 'string' ? `${this.Prefix}_${x}` : `${this.Prefix}_${x.id}`
+    }
+
+    private parseEntity(json: string): T {
+        return parseWithDates<T>(json);
     }
 
     //  Create & Update
@@ -60,7 +65,7 @@ export abstract class DaoRedisBase<T extends { id: any }> implements CrudDao<T> 
             const response = (await multi.exec())[0];
 
             if (response) {
-                return JSON.parse(response.toString());
+                return this.parseEntity(response.toString());
             } else {
                 return null;
             }
@@ -92,7 +97,7 @@ export abstract class DaoRedisBase<T extends { id: any }> implements CrudDao<T> 
             const entities: T[] = [];
             for (const value of values) {
                 if (value) {
-                    entities.push(JSON.parse(value) as T);
+                    entities.push(this.parseEntity(value));
                 }
             }
 

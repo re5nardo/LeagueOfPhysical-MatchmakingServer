@@ -1,5 +1,6 @@
 import { createClient, defineScript } from 'redis';
 import { redisConnection } from '@caches/index';
+import { parseWithDates } from '@utils/redis-json.utils';
 import * as fs from 'fs';
 
 export const redisClient = createClient({
@@ -36,7 +37,7 @@ export const redisClient = createClient({
                 if (values) {
                     for (const value of values) {
                         if (value) {
-                            objects.push(JSON.parse(value));
+                            objects.push(parseWithDates(value));
                         }
                     }
                 }

@@ -1,4 +1,5 @@
 import { redisClient } from '@loaders/redis.loader';
+import { parseWithDates } from '@utils/redis-json.utils';
 
 export class RedisCache {
     public static async set<T>(key: string, value: T, ttl?: number): Promise<void> {
@@ -17,7 +18,7 @@ export class RedisCache {
             if (!data) {
                 return null;
             }
-            return JSON.parse(data) as T;
+            return parseWithDates<T>(data);
         } catch (error) {
             return Promise.reject(error);
         }
