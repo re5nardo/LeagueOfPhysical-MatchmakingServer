@@ -20,6 +20,9 @@ export abstract class DaoRedisBase<T extends { id: any }> implements CrudDao<T> 
     //  Create & Update
     public async save(entity: T): Promise<T> {
         try {
+            if (!entity.id) {
+                return Promise.reject(new Error("Entity must have a valid id."));
+            }
             return await redisClient.save(this.GetRedisKey(entity), this.TTL, entity);
         } catch (error) {
             return Promise.reject(error);
@@ -31,6 +34,9 @@ export abstract class DaoRedisBase<T extends { id: any }> implements CrudDao<T> 
             //  redis.mSet doesn't support ttl option. use multi instead.
             const multi = redisClient.multi();
             for (let entity of entities) {
+                if (!entity.id) {
+                    return Promise.reject(new Error("Each entity must have a valid id."));
+                }
                 multi.save(this.GetRedisKey(entity), this.TTL, entity);
             }
             await multi.exec();

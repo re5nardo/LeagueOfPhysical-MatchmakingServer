@@ -25,7 +25,7 @@ class WaitingRoomService {
 
     public async leaveWaitingRoom(waitingRoomId: string, matchmakingTicketId: string): Promise</*MatchmakingTicketResponseDto*/boolean> {
         try {
-            const waitingRoom = await this.waitingRoomRepository.findById(waitingRoomId);
+            let waitingRoom = await this.waitingRoomRepository.findById(waitingRoomId);
             if (!waitingRoom) {
                 return false;
             }
@@ -45,7 +45,7 @@ class WaitingRoomService {
             if (waitingRoom.matchmakingTicketList.length == 0) {
                 await this.waitingRoomRepository.delete(waitingRoom);
             } else {
-                await this.waitingRoomRepository.save(waitingRoom);
+                waitingRoom = await this.waitingRoomRepository.save(waitingRoom);
             }
 
             return true;

@@ -4,6 +4,7 @@ import { CrudDao } from '@daos/dao.interface';
 type PrismaModel<T extends { id: any }> = {
     upsert: (args: { where: { id: T["id"] }; update: any; create: any; }) => Prisma.PrismaPromise<any>;
     findUnique: (args: { where: { id: T["id"] }; }) => Prisma.PrismaPromise<any>;
+    create: (args: { data: any; }) => Prisma.PrismaPromise<any>;
     findFirst: (args: { where: any; }) => Prisma.PrismaPromise<any>;
     findMany: (args?: { where?: any; }) => Prisma.PrismaPromise<any[]>;
     count: (args?: { where?: any; }) => Prisma.PrismaPromise<number>;
@@ -18,11 +19,18 @@ export abstract class DaoPostgresBase<T extends { id: any }, M extends PrismaMod
     //  Create & Update
     public async save(entity: T): Promise<T> {
         try {
-            return await this.model.upsert({
-                where: { id: entity.id },
-                update: entity,
-                create: entity,
-            });
+            if (entity.id) {
+                return await this.model.upsert({
+                    where: { id: entity.id },
+                    update: entity,
+                    create: entity,
+                });
+            } else {
+                const { id, ...data } = entity;
+                return await this.model.create({
+                    data: data,
+                });
+            }
         } catch (error) {
             return Promise.reject(error);
         }
@@ -31,13 +39,20 @@ export abstract class DaoPostgresBase<T extends { id: any }, M extends PrismaMod
     public async saveAll(entities: Iterable<T>): Promise<void> {
         try {
             await this.prismaClient.$transaction(
-                Array.from(entities).map((entity) =>
-                    this.model.upsert({
-                        where: { id: entity.id },
-                        update: entity,
-                        create: entity,
-                    })
-                )
+                Array.from(entities).map((entity) => {
+                    if (entity.id) {
+                        return this.model.upsert({
+                            where: { id: entity.id },
+                            update: entity,
+                            create: entity,
+                        })
+                    } else {
+                        const { id, ...data } = entity;
+                        return this.model.create({
+                            data: data,
+                        })
+                    }
+                })
             );
         } catch (error) {
             return Promise.reject(error);

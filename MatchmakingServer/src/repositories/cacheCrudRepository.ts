@@ -18,8 +18,9 @@ export class CacheCrudRepository<TDomain extends { id: any }, TEntity extends { 
     public async save(domain: TDomain): Promise<TDomain> {
         try {
             const entity = this.mapper.toEntity(domain);
-            await this.cacheDao.delete(entity);   //  invalidate cache
-
+            if (entity.id) {
+                await this.cacheDao.delete(entity);   //  invalidate cache
+            }
             const savedEntity = await this.dao.save(entity);
             return this.mapper.toDomain(savedEntity);
         } catch (error) {
