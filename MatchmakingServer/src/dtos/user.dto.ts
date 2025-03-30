@@ -2,12 +2,8 @@ import { ResponseBase } from '@interfaces/responseBase.interface';
 
 export class UserResponseDto {
     public id: string;
-    public nickname: string;
-    public masterExp: number;
-    public friendlyRating: number;
-    public rankRating: number;
-    public goldCoin: number;
-    public gem: number;
+    public username: string;
+    public email: string;
 }
 
 export class GetUserResponseDto implements ResponseBase {
