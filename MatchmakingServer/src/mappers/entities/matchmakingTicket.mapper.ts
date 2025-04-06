@@ -39,26 +39,13 @@ export class MatchmakingTicketMapper implements DomainEntityMapper<MatchmakingTi
 
     public getEntityFieldName<K extends keyof MatchmakingTicket>(field: K): string {
         switch (field) {
-            case 'id':
-                return 'id';
-            case 'creator':
-                return 'creator';
-            case 'matchType':
-                return 'matchType';
-            case 'subGameId':
-                return 'subGameId';
-            case 'mapId':
-                return 'mapId';
-            case 'rating':
-                return 'rating';
-            case 'createdAt':
-                return 'createdAt';
-            default:
-                throw new Error(`Invalid field: ${field}`);
+            default: return field;
         }
     }
 
     public toEntityValue<K extends keyof MatchmakingTicket>(field: K, value: MatchmakingTicket[K]): any {
-        return value;
+        switch (field) {
+            default: return value;
+        }
     }
 }

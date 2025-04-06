@@ -38,26 +38,13 @@ export class MatchMapper implements DomainEntityMapper<Match, MatchEntity> {
 
     public getEntityFieldName<K extends keyof Match>(field: K): string {
         switch (field) {
-            case 'id':
-                return 'id';
-            case 'matchType':
-                return 'matchType';
-            case 'subGameId':
-                return 'subGameId';
-            case 'mapId':
-                return 'mapId';
-            case 'targetRating':
-                return 'targetRating';
-            case 'createdAt':
-                return 'createdAt';
-            case 'playerList':
-                return 'playerList';
-            default:
-                throw new Error(`Invalid field: ${field}`);
+            default: return field;
         }
     }
 
     public toEntityValue<K extends keyof Match>(field: K, value: Match[K]): any {
-        return value;
+        switch (field) {
+            default: return value;
+        }
     }
 }

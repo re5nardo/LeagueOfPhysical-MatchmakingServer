@@ -47,34 +47,13 @@ export class WaitingRoomMapper implements DomainEntityMapper<WaitingRoom, Waitin
 
     public getEntityFieldName<K extends keyof WaitingRoom>(field: K): string {
         switch (field) {
-            case 'id':
-                return 'id';
-            case 'matchType':
-                return 'matchType';
-            case 'subGameId':
-                return 'subGameId';
-            case 'mapId':
-                return 'mapId';
-            case 'targetRating':
-                return 'targetRating';
-            case 'createdAt':
-                return 'createdAt';
-            case 'matchmakingTicketList':
-                return 'matchmakingTicketList';
-            case 'maxWaitingTime':
-                return 'maxWaitingTime';
-            case 'minPlayerCount':
-                return 'minPlayerCount';
-            case 'maxPlayerCount':
-                return 'maxPlayerCount';
-            case 'status':
-                return 'status';
-            default:
-                throw new Error(`Invalid field: ${field}`);
+            default: return field;
         }
     }
 
     public toEntityValue<K extends keyof WaitingRoom>(field: K, value: WaitingRoom[K]): any {
-        return value;
+        switch (field) {
+            default: return value;
+        }
     }
 }
