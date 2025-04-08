@@ -163,4 +163,33 @@ export class CacheCrudRepository<TDomain extends { id: any }, TEntity extends { 
             return Promise.reject(error);
         }
     }
+
+    public async findWhere<K extends keyof TDomain>(
+        conditions: [K, TDomain[K]][],
+        useCache: boolean = true,
+    ): Promise<TDomain | undefined | null> {
+        try {
+            const entityConditions: [keyof TEntity, any][] = conditions.map(([field, value]) => {
+                const entityField = this.mapper.getEntityFieldName(field) as keyof TEntity;
+                const entityValue = this.mapper.toEntityValue(field, value);
+                return [entityField, entityValue];
+            });
+    
+            if (useCache) {
+                const cachedEntity = await this.cacheDao.findWhere(entityConditions);
+                if (cachedEntity) {
+                    return this.mapper.toDomain(cachedEntity);
+                }
+            }
+    
+            const entity = await this.dao.findWhere(entityConditions);
+            if (entity && useCache) {
+                await this.cacheDao.save(entity);
+            }
+    
+            return entity ? this.mapper.toDomain(entity) : null;
+        } catch (error) {
+            return Promise.reject(error);
+        }
+    }
 }

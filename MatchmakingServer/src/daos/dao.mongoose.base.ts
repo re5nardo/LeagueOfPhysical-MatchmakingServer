@@ -120,4 +120,16 @@ export abstract class DaoMongooseBase<T extends { id: any }> implements CrudDao<
             return Promise.reject(error);
         }
     }
+
+    public async findWhere<K extends keyof T>(conditions: [K, T[K]][]): Promise<T | undefined | null> {
+        try {
+            const filter = conditions.reduce((acc, [key, value]) => {
+                acc[key] = value;
+                return acc;
+            }, {} as FilterQuery<T>);
+            return await this.mongooseModel.findOne(filter).lean();
+        } catch (error) {
+            return Promise.reject(error);
+        }
+    }
 }

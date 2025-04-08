@@ -21,4 +21,5 @@ export interface CrudRepository<TDomain extends { id: any }, TEntity extends { i
     deleteAllById(ids: Iterable<TDomain["id"]>): Promise<void>;
 
     findByField<K extends keyof TDomain>(field: K, value: TDomain[K]): Promise<TDomain | undefined | null>;
+    findWhere<K extends keyof TDomain>(conditions: [K, TDomain[K]][]): Promise<TDomain | undefined | null>;
 }

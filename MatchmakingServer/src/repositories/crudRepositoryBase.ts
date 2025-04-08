@@ -125,4 +125,21 @@ export class CrudRepositoryBase<TDomain extends { id: any }, TEntity extends { i
             return Promise.reject(error);
         }
     }
+
+    public async findWhere<K extends keyof TDomain>(
+        conditions: [K, TDomain[K]][],
+    ): Promise<TDomain | undefined | null> {
+        try {
+            const entityConditions: [keyof TEntity, any][] = conditions.map(([field, value]) => {
+                const entityField = this.mapper.getEntityFieldName(field) as keyof TEntity;
+                const entityValue = this.mapper.toEntityValue(field, value);
+                return [entityField, entityValue];
+            });
+    
+            const entity = await this.dao.findWhere(entityConditions);
+            return entity ? this.mapper.toDomain(entity) : null;
+        } catch (error) {
+            return Promise.reject(error);
+        }
+    }
 }

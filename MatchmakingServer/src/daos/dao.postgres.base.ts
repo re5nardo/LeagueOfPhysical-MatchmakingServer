@@ -147,4 +147,13 @@ export abstract class DaoPostgresBase<T extends { id: any }, M extends PrismaMod
             return Promise.reject(error);
         }
     }
+
+    public async findWhere<K extends keyof T>(conditions: [K, T[K]][]): Promise<T | undefined | null> {
+        try {
+            const where = conditions.reduce((acc, [key, value]) => ({ ...acc, [key]: value }), {});
+            return await this.model.findFirst({ where });
+        } catch (error) {
+            return Promise.reject(error);
+        }
+    }
 }
