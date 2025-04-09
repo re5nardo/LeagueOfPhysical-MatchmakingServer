@@ -5,9 +5,11 @@ import MatchmakingTicketService from '@services/matchmakingTicket.service';
 import WaitingRoomService from '@services/waitingRoom.service';
 import UserService from '@services/user.service';
 import UserLocationService from '@services/user-location.service';
+import UserStatsService from '@services/user-stats.service';
 import { Location, WaitingRoomLocationDetail } from '@interfaces/user-location.interface';
 import { ResponseCode } from '@interfaces/responseCode.interface';
 import { UpdateUserLocationDto } from '@dtos/user-location.dto';
+import { GameMode } from '@interfaces/user-stats.interface';
 
 class MatchmakingService {
 
@@ -15,6 +17,7 @@ class MatchmakingService {
     private waitingRoomService: WaitingRoomService = new WaitingRoomService();
     private userService: UserService = new UserService();
     private userLocationService: UserLocationService = new UserLocationService();
+    private userStatsService: UserStatsService = new UserStatsService();
 
     public async requestMatchmaking(requestMatchmakingDto: RequestMatchmakingDto): Promise<RequestMatchmakingResponseDto> {
         try {
@@ -32,7 +35,19 @@ class MatchmakingService {
                 };
             }
 
-            const targetRating = requestMatchmakingDto.matchType === MatchType.Rank ? user.rankRating : user.friendlyRating;
+            const gameMode = requestMatchmakingDto.matchType === MatchType.Rank ? GameMode.Ranked : GameMode.Normal;
+            const getUserStatsResponse = await this.userStatsService.findUserStatsById(user.id, gameMode);
+            if (getUserStatsResponse.code !== ResponseCode.SUCCESS) {
+                return {
+                    code: getUserStatsResponse.code,
+                };
+            } else if (!getUserStatsResponse.userStats) {
+                return {
+                    code: ResponseCode.USER_STATS_NOT_EXIST,
+                };
+            }
+
+            const targetRating = getUserStatsResponse.userStats.eloRating;
 
             //  트랜잭션으로 묶어서 처리해야 할 것 같은데...
             //  흠...

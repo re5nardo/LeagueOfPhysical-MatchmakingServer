@@ -32,6 +32,10 @@ export class ResponseCode {
     //#region User Location
     public static readonly USER_LOCATION_NOT_EXIST = 60000;
     //#endregion
+    
+    //#region User Stats
+    public static readonly USER_STATS_NOT_EXIST = 70000;
+    //#endregion
 
     public static readonly UNKNOWN_ERROR = 5000000;
 }
