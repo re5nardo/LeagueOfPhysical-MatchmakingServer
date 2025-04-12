@@ -3,6 +3,6 @@
   <SubGameId>TargetShooting</SubGameId>
   <MinPlayerCount>2</MinPlayerCount>
   <MaxPlayerCount>8</MaxPlayerCount>
-  <AvailableMatchType>Friendly</AvailableMatchType>
-  <AvailableMatchType>Rank</AvailableMatchType>
+  <AvailableMatchType>Normal</AvailableMatchType>
+  <AvailableMatchType>Ranked</AvailableMatchType>
 </SubGameData>
