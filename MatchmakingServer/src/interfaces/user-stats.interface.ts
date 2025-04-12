@@ -1,3 +1,4 @@
+import { GameMode } from '@interfaces/enums';
 
 export interface UserStats {
     id: string;
@@ -10,9 +11,4 @@ export interface UserStats {
     eloRating: number;
     mmr: number;
     tier: string;
-}
-
-export enum GameMode {
-    Normal = 0,
-    Ranked = 1,
 }

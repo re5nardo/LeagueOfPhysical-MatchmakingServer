@@ -1,5 +1,6 @@
-import { Match, MatchType } from '@interfaces/match.interface';
+import { Match } from '@interfaces/match.interface';
 import { Match as MatchEntity } from '@prisma/client';
+import { GameMode } from '@interfaces/enums';
 import * as Entity from '@prisma/client';
 import { DomainEntityMapper } from '@mappers/domain.entity.mapper'
 
@@ -7,7 +8,7 @@ export class MatchMapper implements DomainEntityMapper<Match, MatchEntity> {
     public toDomain(entity: MatchEntity): Match {
         return {
             id: entity.id,
-            matchType: MatchType[entity.matchType as keyof typeof MatchType],
+            matchType: GameMode[entity.matchType as keyof typeof GameMode],
             subGameId: entity.subGameId,
             mapId: entity.mapId,
             targetRating: entity.targetRating,
@@ -19,7 +20,7 @@ export class MatchMapper implements DomainEntityMapper<Match, MatchEntity> {
     public toEntity(domain: Match): MatchEntity {
         return {
             id: domain.id,
-            matchType: MatchType[domain.matchType] as Entity.MatchType,
+            matchType: GameMode[domain.matchType] as Entity.GameMode,
             subGameId: domain.subGameId,
             mapId: domain.mapId,
             targetRating: domain.targetRating,

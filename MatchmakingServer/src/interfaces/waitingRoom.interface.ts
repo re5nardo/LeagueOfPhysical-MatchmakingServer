@@ -1,4 +1,4 @@
-import { MatchType } from "@interfaces/match.interface";
+import { GameMode } from '@interfaces/enums';
 
 export enum WaitingRoomStatus {
     None = 0,
@@ -6,7 +6,7 @@ export enum WaitingRoomStatus {
 
 export interface WaitingRoom {
     id: string;
-    matchType: MatchType;
+    matchType: GameMode;
     subGameId: string;
     mapId: string;
     targetRating: number;

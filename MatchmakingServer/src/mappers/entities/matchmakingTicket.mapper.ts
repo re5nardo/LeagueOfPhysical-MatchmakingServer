@@ -1,5 +1,5 @@
 import { MatchmakingTicket } from '@interfaces/matchmakingTicket.interface';
-import { MatchType } from '@interfaces/match.interface';
+import { GameMode } from '@interfaces/enums';
 import { MatchmakingTicket as MatchmakingTicketEntity } from '@prisma/client';
 import * as Entity from '@prisma/client';
 import { DomainEntityMapper } from '@mappers/domain.entity.mapper'
@@ -9,7 +9,7 @@ export class MatchmakingTicketMapper implements DomainEntityMapper<MatchmakingTi
         return {
             id: entity.id,
             creator: entity.creator,
-            matchType: MatchType[entity.matchType as keyof typeof MatchType],
+            matchType: GameMode[entity.matchType as keyof typeof GameMode],
             subGameId: entity.subGameId,
             mapId: entity.mapId,
             rating: entity.rating,
@@ -21,7 +21,7 @@ export class MatchmakingTicketMapper implements DomainEntityMapper<MatchmakingTi
         return {
             id: domain.id,
             creator: domain.creator,
-            matchType: MatchType[domain.matchType] as Entity.MatchType,
+            matchType: GameMode[domain.matchType] as Entity.GameMode,
             subGameId: domain.subGameId,
             mapId: domain.mapId,
             rating: domain.rating,

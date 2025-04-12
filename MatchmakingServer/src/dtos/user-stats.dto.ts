@@ -1,5 +1,5 @@
 import { ResponseBase } from '@interfaces/responseBase.interface';
-import { GameMode } from '@interfaces/user-stats.interface';
+import { GameMode } from '@interfaces/enums';
 
 export class UserStatsResponseDto {
     public userId: string;

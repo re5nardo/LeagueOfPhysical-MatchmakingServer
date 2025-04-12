@@ -1,5 +1,5 @@
 import { WaitingRoom, WaitingRoomStatus } from '@interfaces/waitingRoom.interface';
-import { MatchType } from '@interfaces/match.interface';
+import { GameMode } from '@interfaces/enums';
 import { WaitingRoom as WaitingRoomEntity } from '@prisma/client';
 import * as Entity from '@prisma/client';
 import { DomainEntityMapper } from '@mappers/domain.entity.mapper'
@@ -8,7 +8,7 @@ export class WaitingRoomMapper implements DomainEntityMapper<WaitingRoom, Waitin
     public toDomain(entity: WaitingRoomEntity): WaitingRoom {
         return {
             id: entity.id,
-            matchType: MatchType[entity.matchType as keyof typeof MatchType],
+            matchType: GameMode[entity.matchType as keyof typeof GameMode],
             subGameId: entity.subGameId,
             mapId: entity.mapId,
             targetRating: entity.targetRating,
@@ -24,7 +24,7 @@ export class WaitingRoomMapper implements DomainEntityMapper<WaitingRoom, Waitin
     public toEntity(domain: WaitingRoom): WaitingRoomEntity {
         return {
             id: domain.id,
-            matchType: MatchType[domain.matchType] as Entity.MatchType,
+            matchType: GameMode[domain.matchType] as Entity.GameMode,
             subGameId: domain.subGameId,
             mapId: domain.mapId,
             targetRating: domain.targetRating,

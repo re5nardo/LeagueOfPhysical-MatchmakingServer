@@ -1,9 +1,9 @@
-import { MatchType } from '@interfaces/match.interface';
+import { GameMode } from '@interfaces/enums';
 
 export interface MatchmakingTicket {
     id: string;
     creator: string;
-    matchType: MatchType;
+    matchType: GameMode;
     subGameId: string;
     mapId: string;
     rating: number;

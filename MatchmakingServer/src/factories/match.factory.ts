@@ -1,4 +1,5 @@
-import { Match, MatchType } from '@interfaces/match.interface';
+import { Match } from '@interfaces/match.interface';
+import { GameMode } from '@interfaces/enums';
 import { v4 } from 'uuid';
 
 export class MatchFactory {
@@ -9,7 +10,7 @@ export class MatchFactory {
     private static createDefault(): Match {
         return {
             id: v4(),
-            matchType: MatchType.Friendly,
+            matchType: GameMode.Normal,
             subGameId: '',
             mapId: '',
             targetRating: 1000,

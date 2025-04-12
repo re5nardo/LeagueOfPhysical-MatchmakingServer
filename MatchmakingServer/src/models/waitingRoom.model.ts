@@ -1,6 +1,6 @@
 import { model, Schema, Document } from 'mongoose';
 import { WaitingRoom, WaitingRoomStatus } from '@interfaces/waitingRoom.interface';
-import { MatchType } from '@interfaces/match.interface';
+import { GameMode } from '@interfaces/enums';
 
 const waitingRoomSchema: Schema = new Schema({
     id: {
@@ -10,7 +10,7 @@ const waitingRoomSchema: Schema = new Schema({
     },
     matchType: {
         type: Number,
-        enum: MatchType,
+        enum: GameMode,
     },
     subGameId: String,
     mapId: String,

@@ -1,5 +1,6 @@
 import { model, Schema, Document } from 'mongoose';
-import { Match, MatchType } from '@interfaces/match.interface';
+import { Match } from '@interfaces/match.interface';
+import { GameMode } from '@interfaces/enums';
 
 const matchSchema: Schema = new Schema({
     id: {
@@ -9,7 +10,7 @@ const matchSchema: Schema = new Schema({
     },
     matchType: {
         type: Number,
-        enum: MatchType,
+        enum: GameMode,
     },
     subGameId: String,
     mapId: String,

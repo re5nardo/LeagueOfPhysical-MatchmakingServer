@@ -1,13 +1,13 @@
 import { IsNumber, IsString, IsEnum, IsObject } from 'class-validator';
-import { MatchType } from '@interfaces/match.interface';
+import { GameMode } from '@interfaces/enums';
 import { ResponseBase } from '@interfaces/responseBase.interface';
 
 export class RequestMatchmakingDto {
     @IsString()
     public userId: string;
 
-    @IsEnum(MatchType)
-    public matchType: MatchType;
+    @IsEnum(GameMode)
+    public matchType: GameMode;
 
     @IsString()
     public subGameId: string;

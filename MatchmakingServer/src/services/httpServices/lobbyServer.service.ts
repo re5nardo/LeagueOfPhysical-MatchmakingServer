@@ -3,7 +3,7 @@ import { LOBBY_SERVER_HOST, LOBBY_SERVER_PORT } from '@config';
 import HttpService from '@services/httpServices/httpService';
 import { FindAllUsersResponseDto, GetUserResponseDto } from '@dtos/user.dto';
 import { UpdateUserLocationDto, UpdateUserLocationResponseDto, GetUserLocationResponseDto }from '@dtos/user-location.dto';
-import { GameMode } from '@interfaces/user-stats.interface';
+import { GameMode } from '@interfaces/enums';
 import { GetUserStatsResponseDto } from '@dtos/user-stats.dto';
 
 class LobbyServerService extends HttpService {

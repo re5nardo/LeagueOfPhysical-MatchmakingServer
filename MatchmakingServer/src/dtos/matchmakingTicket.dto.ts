@@ -1,5 +1,5 @@
 import { IsNumber, IsString, IsEnum } from 'class-validator';
-import { MatchType } from '@interfaces/match.interface';
+import { GameMode } from '@interfaces/enums';
 import { ResponseBase } from '@interfaces/responseBase.interface';
 
 export class CreateMatchmakingTicketDto {
@@ -9,8 +9,8 @@ export class CreateMatchmakingTicketDto {
     @IsString()
     public creator: string;
 
-    @IsEnum(MatchType)
-    public matchType: MatchType;
+    @IsEnum(GameMode)
+    public matchType: GameMode;
 
     @IsString()
     public subGameId: string;
@@ -25,7 +25,7 @@ export class CreateMatchmakingTicketDto {
 export class MatchmakingTicketResponseDto {
     public id: string;
     public creator: string;
-    public matchType: MatchType;
+    public matchType: GameMode;
     public subGameId: string;
     public mapId: string;
     public rating: number;

@@ -1,6 +1,6 @@
 
 import { RequestMatchmakingDto, RequestMatchmakingResponseDto, CancelMatchmakingResponseDto } from '@dtos/matchmaking.dto';
-import { MatchType } from '@interfaces/match.interface';
+import { GameMode } from '@interfaces/enums';
 import MatchmakingTicketService from '@services/matchmakingTicket.service';
 import WaitingRoomService from '@services/waitingRoom.service';
 import UserService from '@services/user.service';
@@ -9,7 +9,6 @@ import UserStatsService from '@services/user-stats.service';
 import { Location, WaitingRoomLocationDetail } from '@interfaces/user-location.interface';
 import { ResponseCode } from '@interfaces/responseCode.interface';
 import { UpdateUserLocationDto } from '@dtos/user-location.dto';
-import { GameMode } from '@interfaces/user-stats.interface';
 
 class MatchmakingService {
 
@@ -35,7 +34,7 @@ class MatchmakingService {
                 };
             }
 
-            const gameMode = requestMatchmakingDto.matchType === MatchType.Rank ? GameMode.Ranked : GameMode.Normal;
+            const gameMode = requestMatchmakingDto.matchType === GameMode.Ranked ? GameMode.Ranked : GameMode.Normal;
             const getUserStatsResponse = await this.userStatsService.findUserStatsById(user.id, gameMode);
             if (getUserStatsResponse.code !== ResponseCode.SUCCESS) {
                 return {

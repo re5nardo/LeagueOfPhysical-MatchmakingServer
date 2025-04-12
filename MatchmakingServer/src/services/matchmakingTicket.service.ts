@@ -3,7 +3,7 @@ import { HttpException } from '@exceptions/HttpException';
 import { MatchmakingTicket } from '@interfaces/matchmakingTicket.interface';
 import { isEmpty } from '@utils/util';
 import { MatchmakingTicketRepository } from '@repositories/matchmakingTicket.repository';
-import { MatchType } from '@interfaces/match.interface';
+import { GameMode } from '@interfaces/enums';
 import { MatchmakingTicketFactory } from '@factories/matchmakingTicket.factory';
 import { MatchmakingTicketMapper } from '@mappers/controllers/matchmakingTicket.mapper';
 
@@ -51,7 +51,7 @@ class MatchmakingTicketService {
         }
     }
     
-    public async issueMatchmakingTicket(userId: string, matchType: MatchType, subGameId: string, mapId: string, rating: number): Promise<MatchmakingTicket> {
+    public async issueMatchmakingTicket(userId: string, matchType: GameMode, subGameId: string, mapId: string, rating: number): Promise<MatchmakingTicket> {
         try {
             const matchmakingTicket = MatchmakingTicketFactory.create({
                 creator: userId,

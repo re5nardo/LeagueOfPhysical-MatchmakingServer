@@ -1,5 +1,5 @@
 import { WaitingRoom, WaitingRoomStatus } from '@interfaces/waitingRoom.interface';
-import { MatchType } from '@interfaces/match.interface';
+import { GameMode } from '@interfaces/enums';
 import { v4 } from 'uuid';
 
 export class WaitingRoomFactory {
@@ -10,7 +10,7 @@ export class WaitingRoomFactory {
     private static createDefault(): WaitingRoom {
         return {
             id: v4(),
-            matchType: MatchType.Friendly,
+            matchType: GameMode.Normal,
             subGameId: '',
             mapId: '',
             targetRating: 1000,

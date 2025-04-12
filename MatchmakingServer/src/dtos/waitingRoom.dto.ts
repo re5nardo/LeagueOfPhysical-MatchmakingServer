@@ -1,11 +1,11 @@
 import { IsNumber, IsString, IsEnum, IsArray } from 'class-validator';
-import { MatchType } from '@interfaces/match.interface';
+import { GameMode } from '@interfaces/enums';
 import { WaitingRoomStatus } from '@interfaces/waitingRoom.interface';
 import { ResponseBase } from '@interfaces/responseBase.interface';
 
 export class CreateWaitingRoomDto {
-    @IsEnum(MatchType)
-    public matchType: MatchType;
+    @IsEnum(GameMode)
+    public matchType: GameMode;
 
     @IsString()
     public subGameId: string;
@@ -25,7 +25,7 @@ export class CreateWaitingRoomDto {
     @IsNumber()
     public maxPlayerCount: number;
 
-    public constructor(matchType: MatchType, subGameId: string, mapId: string, targetRating: number, maxWaitingTime: number, minPlayerCount: number, maxPlayerCount: number) {
+    public constructor(matchType: GameMode, subGameId: string, mapId: string, targetRating: number, maxWaitingTime: number, minPlayerCount: number, maxPlayerCount: number) {
         this.matchType = matchType;
         this.subGameId = subGameId;
         this.mapId = mapId;
@@ -38,7 +38,7 @@ export class CreateWaitingRoomDto {
 
 export class WaitingRoomResponseDto {
     public id: string;
-    public matchType: MatchType;
+    public matchType: GameMode;
     public subGameId: string;
     public mapId: string;
     public targetRating: number;

@@ -1,12 +1,8 @@
-
-export enum MatchType {
-    Friendly = 0,
-    Rank = 1,
-}
+import { GameMode } from '@interfaces/enums';
 
 export interface Match {
     id: string;
-    matchType: MatchType;
+    matchType: GameMode;
     subGameId: string;
     mapId: string;
     targetRating: number;

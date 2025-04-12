@@ -1,6 +1,6 @@
 import { model, Schema, Document } from 'mongoose';
 import { MatchmakingTicket } from '@interfaces/matchmakingTicket.interface';
-import { MatchType } from '@interfaces/match.interface';
+import { GameMode } from '@interfaces/enums';
 
 const matchmakingTicketSchema: Schema = new Schema({
     id: {
@@ -11,7 +11,7 @@ const matchmakingTicketSchema: Schema = new Schema({
     creator: String,
     matchType: {
         type: Number,
-        enum: MatchType,
+        enum: GameMode,
     },
     subGameId: String,
     mapId: String,

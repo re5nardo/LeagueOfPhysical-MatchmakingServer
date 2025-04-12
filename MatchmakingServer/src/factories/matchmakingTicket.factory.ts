@@ -1,5 +1,5 @@
 import { MatchmakingTicket } from '@interfaces/matchmakingTicket.interface';
-import { MatchType } from '@interfaces/match.interface';
+import { GameMode } from '@interfaces/enums';
 import { v4 } from 'uuid';
 
 export class MatchmakingTicketFactory {
@@ -11,7 +11,7 @@ export class MatchmakingTicketFactory {
         return {
             id: v4(),
             creator: '',
-            matchType: MatchType.Friendly,
+            matchType: GameMode.Normal,
             subGameId: '',
             mapId: '',
             rating: 1000,

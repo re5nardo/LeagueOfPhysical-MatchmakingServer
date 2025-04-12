@@ -1,5 +1,5 @@
 import LobbyServerService from '@services/httpServices/lobbyServer.service';
-import { GameMode } from '@interfaces/user-stats.interface';
+import { GameMode } from '@interfaces/enums';
 import { GetUserStatsResponseDto } from '@dtos/user-stats.dto';
 
 class UserStatsService {
